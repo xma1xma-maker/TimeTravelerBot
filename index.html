@@ -31,8 +31,15 @@
         .btn-collect {
             background: linear-gradient(135deg, #26A17B 0%, #1b7a5c 100%);
             border: 1px solid #34d399;
+            transition: all 0.2s;
         }
         .btn-collect:active { transform: scale(0.95); }
+        .btn-collect:disabled {
+            background: #374151;
+            border-color: #4b5563;
+            color: #9ca3af;
+            transform: none;
+        }
         .miner-slot {
             background: rgba(0, 0, 0, 0.3);
             border: 1px dashed rgba(255, 255, 255, 0.15);
@@ -42,7 +49,6 @@
             align-items: center;
             justify-content: center;
         }
-        /* شريط التقدم (سعة التخزين) */
         .progress-bar-bg {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
@@ -53,87 +59,76 @@
         .progress-bar-fill {
             background: #26A17B;
             height: 100%;
-            width: 75%; /* كمثال: ممتلئ بنسبة 75% */
+            width: 0%;
             border-radius: 10px;
             box-shadow: 0 0 10px #26A17B;
+            transition: width 1s linear;
+        }
+        .progress-full {
+            background: #ef4444; /* أحمر عند الامتلاء */
+            box-shadow: 0 0 10px #ef4444;
         }
     </style>
 </head>
 <body class="pb-24">
 
-    <!-- الرأس: الرصيد واسم المستخدم -->
+    <!-- الرأس -->
     <div class="p-4 pt-6">
         <div class="glass-card p-4 flex justify-between items-center">
             <div>
                 <p class="text-xs text-gray-400 font-bold mb-1 uppercase">الرصيد الإجمالي</p>
                 <p class="text-3xl font-bold text-[#26A17B]">
-                    <span class="text-xl">₮</span> 0.0000
+                    <span class="text-xl">₮</span> <span id="main-balance">0.0000</span>
                 </p>
             </div>
-            <div class="bg-black/40 px-4 py-2 rounded-xl text-sm font-bold border border-white/10 flex items-center gap-2">
+            <div class="bg-black/40 px-4 py-2 rounded-xl text-sm font-bold border border-white/10">
                 <span>المعدن</span>
             </div>
         </div>
     </div>
 
-    <!-- قسم التعدين (المستحق وسعة التخزين) -->
+    <!-- قسم التعدين -->
     <div class="px-4 mb-8">
         <div class="glass-card p-6 text-center relative">
             <h3 class="font-bold text-gray-400 text-sm">USDT قيد التعدين</h3>
             <p class="text-4xl font-bold mt-2 mb-2 text-white">
-                <span class="text-2xl text-[#26A17B]">₮</span> 0.0010
+                <span class="text-2xl text-[#26A17B]">₮</span> <span id="pending-balance">0.000000</span>
             </p>
             
-            <!-- شريط سعة التخزين الجديد -->
+            <!-- شريط سعة التخزين -->
             <div class="mb-6 text-right">
                 <div class="flex justify-between text-[10px] text-gray-400 mb-1">
-                    <span>سعة التخزين (ساعة واحدة)</span>
-                    <span class="text-[#26A17B]">75% ممتلئ</span>
+                    <span id="storage-text">سعة التخزين (ساعة واحدة)</span>
+                    <span id="progress-text" class="text-[#26A17B]">0% ممتلئ</span>
                 </div>
                 <div class="progress-bar-bg">
-                    <div class="progress-bar-fill"></div>
+                    <div id="progress-fill" class="progress-bar-fill"></div>
                 </div>
-                <p class="text-[9px] text-red-400 mt-1 text-center">يتوقف التعدين عند امتلاء الخزان، اجمع أرباحك!</p>
+                <p id="storage-warning" class="text-[9px] text-gray-500 mt-1 text-center">يستمر التعدين حتى يمتلئ الخزان</p>
             </div>
 
             <div class="grid grid-cols-3 gap-3 mb-6">
                 <div class="bg-black/30 p-3 rounded-xl border border-white/5">
                     <p class="text-[10px] text-gray-400 mb-1">في الساعة</p>
-                    <p class="text-sm font-bold text-[#26A17B]">0.0013</p>
+                    <p class="text-sm font-bold text-[#26A17B]" id="rate-hourly">0.00</p>
                 </div>
                 <div class="bg-black/30 p-3 rounded-xl border border-white/5">
                     <p class="text-[10px] text-gray-400 mb-1">في اليوم</p>
-                    <p class="text-sm font-bold text-[#26A17B]">0.033</p>
+                    <p class="text-sm font-bold text-[#26A17B]" id="rate-daily">0.00</p>
                 </div>
                 <div class="bg-black/30 p-3 rounded-xl border border-white/5">
                     <p class="text-[10px] text-gray-400 mb-1">في الشهر</p>
-                    <p class="text-sm font-bold text-[#26A17B]">1.00</p>
+                    <p class="text-sm font-bold text-[#26A17B]" id="rate-monthly">0.00</p>
                 </div>
             </div>
 
-            <button class="btn-collect w-full font-bold py-4 rounded-xl text-lg text-white flex justify-center items-center gap-2 shadow-lg transition">
+            <button id="btn-collect" onclick="collectRewards()" class="btn-collect w-full font-bold py-4 rounded-xl text-lg text-white flex justify-center items-center gap-2 shadow-lg">
                 جمع الأرباح
             </button>
         </div>
     </div>
 
-    <!-- شبكة الأجهزة المملوكة -->
-    <div class="px-4 mb-8">
-        <div class="flex justify-between items-end mb-3 px-1">
-            <h3 class="text-sm font-bold text-gray-300">أجهزتك النشطة</h3>
-        </div>
-        <div class="grid grid-cols-3 gap-3 p-3 glass-card">
-            <!-- الجهاز المجاني (الافتراضي) -->
-            <div class="miner-slot bg-gray-500/10 border-gray-500/40 border-solid relative">
-                <div class="absolute top-1 right-1 bg-gray-600 text-white text-[8px] px-1 rounded">مجاني</div>
-                <img src="https://cdn-icons-png.flaticon.com/512/1198/1198367.png" class="w-10 h-10 opacity-70">
-            </div>
-            <div class="miner-slot"></div>
-            <div class="miner-slot"></div>
-        </div>
-    </div>
-
-    <!-- قسم المتجر (الأجهزة المدفوعة ) -->
+    <!-- المتجر -->
     <div class="px-4 mb-10">
         <h2 class="text-lg font-bold mb-4 text-white flex items-center gap-2">
             <span class="bg-[#26A17B] w-1 h-5 rounded-full"></span>
@@ -141,19 +136,13 @@
         </h2>
         
         <div class="grid grid-cols-2 gap-4">
-            
             <!-- باقة 8 دولار -->
             <div class="glass-card p-4 text-center relative">
                 <div class="absolute top-0 right-0 bg-[#26A17B]/20 text-[#26A17B] text-[9px] px-2 py-1 rounded-bl-lg font-bold">تخزين 5 ساعات</div>
                 <p class="text-gray-400 text-[10px] font-bold uppercase mt-2">الدخل الشهري</p>
                 <p class="text-[#26A17B] font-bold text-xl mt-1">₮ 10.00</p>
-                
-                <img src="https://cdn-icons-png.flaticon.com/512/2910/2910008.png" class="w-16 h-16 mx-auto my-3 drop-shadow-[0_0_10px_rgba(38,161,123,0.2 )]">
-                <p class="text-xs font-bold text-white mb-3">Starter Miner</p>
-
-                <button class="w-full bg-white text-black hover:bg-gray-200 font-bold py-2 rounded-xl text-sm transition">
-                    شراء بـ 8 ₮
-                </button>
+                <img src="https://cdn-icons-png.flaticon.com/512/2910/2910008.png" class="w-16 h-16 mx-auto my-3">
+                <button onclick="buyMiner(1 )" class="w-full bg-white text-black hover:bg-gray-200 font-bold py-2 rounded-xl text-sm">شراء بـ 8 ₮</button>
             </div>
 
             <!-- باقة 20 دولار -->
@@ -161,13 +150,8 @@
                 <div class="absolute top-0 right-0 bg-[#26A17B]/20 text-[#26A17B] text-[9px] px-2 py-1 rounded-bl-lg font-bold">تخزين 5 ساعات</div>
                 <p class="text-gray-400 text-[10px] font-bold uppercase mt-2">الدخل الشهري</p>
                 <p class="text-[#26A17B] font-bold text-xl mt-1">₮ 30.00</p>
-                
-                <img src="https://cdn-icons-png.flaticon.com/512/1440/1440693.png" class="w-16 h-16 mx-auto my-3 drop-shadow-[0_0_10px_rgba(38,161,123,0.2 )]">
-                <p class="text-xs font-bold text-white mb-3">Advanced Miner</p>
-
-                <button class="w-full bg-white text-black hover:bg-gray-200 font-bold py-2 rounded-xl text-sm transition">
-                    شراء بـ 20 ₮
-                </button>
+                <img src="https://cdn-icons-png.flaticon.com/512/1440/1440693.png" class="w-16 h-16 mx-auto my-3">
+                <button onclick="buyMiner(2 )" class="w-full bg-white text-black hover:bg-gray-200 font-bold py-2 rounded-xl text-sm">شراء بـ 20 ₮</button>
             </div>
 
             <!-- باقة 50 دولار -->
@@ -175,13 +159,8 @@
                 <div class="absolute top-0 right-0 bg-[#26A17B]/20 text-[#26A17B] text-[9px] px-2 py-1 rounded-bl-lg font-bold">تخزين 5 ساعات</div>
                 <p class="text-gray-400 text-[10px] font-bold uppercase mt-2">الدخل الشهري</p>
                 <p class="text-[#26A17B] font-bold text-xl mt-1">₮ 100.00</p>
-                
-                <img src="https://cdn-icons-png.flaticon.com/512/2094/2094308.png" class="w-16 h-16 mx-auto my-3 drop-shadow-[0_0_10px_rgba(38,161,123,0.2 )]">
-                <p class="text-xs font-bold text-white mb-3">Pro Farm</p>
-
-                <button class="w-full bg-white text-black hover:bg-gray-200 font-bold py-2 rounded-xl text-sm transition">
-                    شراء بـ 50 ₮
-                </button>
+                <img src="https://cdn-icons-png.flaticon.com/512/2094/2094308.png" class="w-16 h-16 mx-auto my-3">
+                <button onclick="buyMiner(3 )" class="w-full bg-white text-black hover:bg-gray-200 font-bold py-2 rounded-xl text-sm">شراء بـ 50 ₮</button>
             </div>
 
             <!-- باقة 150 دولار -->
@@ -189,17 +168,152 @@
                 <div class="absolute top-0 right-0 bg-yellow-500/20 text-yellow-400 text-[9px] px-2 py-1 rounded-bl-lg font-bold">VIP - 5 ساعات</div>
                 <p class="text-gray-400 text-[10px] font-bold uppercase mt-2">الدخل الشهري</p>
                 <p class="text-yellow-400 font-bold text-xl mt-1">₮ 500.00</p>
-                
-                <img src="https://cdn-icons-png.flaticon.com/512/3260/3260867.png" class="w-16 h-16 mx-auto my-3 drop-shadow-[0_0_15px_rgba(234,179,8,0.3 )]">
-                <p class="text-xs font-bold text-white mb-3">Whale Server</p>
-
-                <button class="w-full bg-yellow-400 text-black hover:bg-yellow-500 font-bold py-2 rounded-xl text-sm transition shadow-[0_0_10px_rgba(234,179,8,0.3)]">
-                    شراء بـ 150 ₮
-                </button>
+                <img src="https://cdn-icons-png.flaticon.com/512/3260/3260867.png" class="w-16 h-16 mx-auto my-3">
+                <button onclick="buyMiner(4 )" class="w-full bg-yellow-400 text-black hover:bg-yellow-500 font-bold py-2 rounded-xl text-sm">شراء بـ 150 ₮</button>
             </div>
-
         </div>
     </div>
 
+    <!-- كود JavaScript (عقل التطبيق) -->
+    <script>
+        // إعدادات الأجهزة (الأسعار والأرباح)
+        // الشهر = 30 يوم = 720 ساعة
+        const MINERS_DB = {
+            0: { id: 0, name: "Free Miner", cost: 0, monthly: 1, capacityHours: 1 },
+            1: { id: 1, name: "Starter", cost: 8, monthly: 10, capacityHours: 5 },
+            2: { id: 2, name: "Advanced", cost: 20, monthly: 30, capacityHours: 5 },
+            3: { id: 3, name: "Pro Farm", cost: 50, monthly: 100, capacityHours: 5 },
+            4: { id: 4, name: "Whale VIP", cost: 150, monthly: 500, capacityHours: 5 }
+        };
+
+        // بيانات اللاعب الافتراضية
+        let player = {
+            balance: 0,
+            lastCollectTime: Date.now(),
+            miners: [0] // يمتلك الجهاز المجاني (رقم 0) افتراضياً
+        };
+
+        // استرجاع البيانات المحفوظة إذا كان المستخدم قد دخل سابقاً
+        const savedData = localStorage.getItem('usdt_miner_save');
+        if (savedData) {
+            player = JSON.parse(savedData);
+        }
+
+        // متغيرات لحساب الأرباح
+        let totalHourlyRate = 0;
+        let maxCapacityUSDT = 0;
+
+        // دالة لحساب قوة التعدين الحالية للمستخدم
+        function calculateStats() {
+            totalHourlyRate = 0;
+            maxCapacityUSDT = 0;
+            let maxHours = 1; // السعة الافتراضية
+
+            player.miners.forEach(minerId => {
+                const miner = MINERS_DB[minerId];
+                const hourly = miner.monthly / 720; // حساب الربح في الساعة
+                totalHourlyRate += hourly;
+                maxCapacityUSDT += (hourly * miner.capacityHours);
+                if (miner.capacityHours > maxHours) maxHours = miner.capacityHours;
+            });
+
+            // تحديث النصوص في الواجهة
+            document.getElementById('rate-hourly').innerText = totalHourlyRate.toFixed(4);
+            document.getElementById('rate-daily').innerText = (totalHourlyRate * 24).toFixed(3);
+            document.getElementById('rate-monthly').innerText = (totalHourlyRate * 720).toFixed(2);
+            document.getElementById('storage-text').innerText = `سعة التخزين (${maxHours} ساعات)`;
+        }
+
+        // دالة تحديث العدادات (تعمل كل ثانية)
+        function gameLoop() {
+            const now = Date.now();
+            const elapsedMilliseconds = now - player.lastCollectTime;
+            const elapsedHours = elapsedMilliseconds / (1000 * 60 * 60);
+
+            // حساب الرصيد المعلق (لا يتجاوز السعة القصوى)
+            let pending = elapsedHours * totalHourlyRate;
+            let isFull = false;
+
+            if (pending >= maxCapacityUSDT) {
+                pending = maxCapacityUSDT;
+                isFull = true;
+            }
+
+            // تحديث الأرقام في الشاشة
+            document.getElementById('main-balance').innerText = player.balance.toFixed(4);
+            document.getElementById('pending-balance').innerText = pending.toFixed(6);
+
+            // تحديث شريط التقدم
+            const progressPercent = (pending / maxCapacityUSDT) * 100;
+            const fillElement = document.getElementById('progress-fill');
+            const textElement = document.getElementById('progress-text');
+            const warningElement = document.getElementById('storage-warning');
+
+            fillElement.style.width = `${progressPercent}%`;
+            textElement.innerText = `${Math.floor(progressPercent)}% ممتلئ`;
+
+            if (isFull) {
+                fillElement.classList.add('progress-full');
+                textElement.classList.replace('text-[#26A17B]', 'text-red-400');
+                warningElement.innerText = "⚠️ الخزان ممتلئ! توقف التعدين، اجمع أرباحك الآن.";
+                warningElement.classList.replace('text-gray-500', 'text-red-400');
+            } else {
+                fillElement.classList.remove('progress-full');
+                textElement.classList.replace('text-red-400', 'text-[#26A17B]');
+                warningElement.innerText = "يستمر التعدين حتى يمتلئ الخزان";
+                warningElement.classList.replace('text-red-400', 'text-gray-500');
+            }
+        }
+
+        // دالة جمع الأرباح
+        function collectRewards() {
+            const now = Date.now();
+            const elapsedHours = (now - player.lastCollectTime) / (1000 * 60 * 60);
+            let pending = elapsedHours * totalHourlyRate;
+            
+            if (pending >= maxCapacityUSDT) pending = maxCapacityUSDT;
+
+            if (pending > 0.000001) {
+                player.balance += pending;
+                player.lastCollectTime = now; // تصفير العداد
+                saveGame();
+                gameLoop(); // تحديث الشاشة فوراً
+                
+                // اهتزاز الهاتف إذا كان مدعوماً في تليجرام
+                if (window.Telegram && window.Telegram.WebApp.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                }
+            }
+        }
+
+        // دالة شراء جهاز جديد
+        function buyMiner(minerId) {
+            const miner = MINERS_DB[minerId];
+            if (player.balance >= miner.cost) {
+                player.balance -= miner.cost;
+                player.miners.push(minerId);
+                
+                // نجمع الأرباح المعلقة أولاً حتى لا تضيع بسبب تغيير الحسابات
+                collectRewards(); 
+                
+                calculateStats();
+                saveGame();
+                alert(`تم شراء ${miner.name} بنجاح! زادت أرباحك وسعة تخزينك.`);
+            } else {
+                alert(`رصيدك غير كافٍ! تحتاج إلى ${miner.cost} ₮ لشراء هذا الجهاز.`);
+            }
+        }
+
+        // حفظ اللعبة في المتصفح
+        function saveGame() {
+            localStorage.setItem('usdt_miner_save', JSON.stringify(player));
+        }
+
+        // تشغيل اللعبة عند فتح الصفحة
+        calculateStats();
+        setInterval(gameLoop, 1000); // تحديث الشاشة كل ثانية
+        gameLoop(); // تشغيل مرة واحدة فوراً لمنع التأخير
+
+    </script>
 </body>
 </html>
