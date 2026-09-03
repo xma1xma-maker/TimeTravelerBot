@@ -1,0 +1,107 @@
+/* الألوان الأساسية للتطبيق */
+:root {
+    --bg-main: #0f172a; /* لون خلفية داكن فاخر */
+    --bg-card: #1e293b; /* لون البطاقات */
+    --btc-color: #F7931A; /* لون البتكوين البرتقالي/الذهبي */
+    --btc-hover: #e08516;
+    --border-color: #334155;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    padding-bottom: 40px;
+}
+
+/* تصميم البطاقات */
+.btc-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* لون نصوص البتكوين */
+.text-btc {
+    color: var(--btc-color);
+}
+
+/* شارة المستخدم */
+.user-badge {
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: bold;
+    border: 1px solid var(--border-color);
+}
+
+/* الأزرار الأربعة العلوية */
+.action-btn {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px 0;
+    font-size: 11px;
+    font-weight: bold;
+    color: #cbd5e1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.2s;
+}
+.action-btn:active {
+    transform: scale(0.95);
+    background-color: #2dd4bf20;
+}
+
+/* زر جمع الأرباح */
+.btn-collect {
+    background-color: var(--btc-color);
+    color: #000000;
+    transition: transform 0.1s;
+}
+.btn-collect:active {
+    transform: scale(0.96);
+}
+
+/* مربعات الإحصائيات */
+.stat-box {
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* شريط التخزين */
+.progress-bg {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    height: 8px;
+    overflow: hidden;
+}
+.progress-fill {
+    background-color: var(--btc-color);
+    height: 100%;
+    width: 0%;
+    transition: width 1s linear;
+    box-shadow: 0 0 10px var(--btc-color);
+}
+.progress-full {
+    background-color: #ef4444;
+    box-shadow: 0 0 10px #ef4444;
+}
+
+/* شبكة الأجهزة */
+.grid-slot {
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px dashed var(--border-color);
+    aspect-ratio: 1 / 1;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
