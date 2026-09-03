@@ -277,6 +277,7 @@
 
     <!-- كود JavaScript -->
     <script>
+        // إعدادات الأجهزة
         const MINERS_DB = {
             0: { id: 0, name: "Free Node", cost: 0, monthly: 1, capacityHours: 1 },
             1: { id: 1, name: "Node V1", cost: 8, monthly: 10, capacityHours: 5 },
@@ -285,12 +286,14 @@
             4: { id: 4, name: "Whale Farm", cost: 150, monthly: 500, capacityHours: 5 }
         };
 
+        // بيانات اللاعب
         let player = {
             balance: 0,
             lastCollectTime: Date.now(),
             miners: [0]
         };
 
+        // استرجاع البيانات
         const savedData = localStorage.getItem('usdt_pro_miner');
         if (savedData) {
             player = JSON.parse(savedData);
@@ -299,6 +302,7 @@
         let totalHourlyRate = 0;
         let maxCapacityUSDT = 0;
 
+        // حساب الإحصائيات
         function calculateStats() {
             totalHourlyRate = 0;
             maxCapacityUSDT = 0;
@@ -318,6 +322,7 @@
             document.getElementById('storage-text').innerText = `السعة: ${maxHours} ساعات`;
         }
 
+        // حلقة اللعبة (تحديث الشاشة)
         function gameLoop() {
             const now = Date.now();
             const elapsedHours = (now - player.lastCollectTime) / (1000 * 60 * 60);
@@ -338,4 +343,71 @@
             const textElement = document.getElementById('progress-text');
             const warningElement = document.getElementById('storage-warning');
 
-            fillElement.style.width = `${
+            fillElement.style.width = `${progressPercent}%`;
+            textElement.innerText = `${Math.floor(progressPercent)}%`;
+
+            if (isFull) {
+                fillElement.classList.add('progress-full');
+                textElement.classList.replace('text-[#2ebd85]', 'text-[#f6465d]');
+                warningElement.innerText = "الخزان ممتلئ! يرجى جمع الأرباح.";
+                warningElement.classList.replace('text-[#848e9c]', 'text-[#f6465d]');
+            } else {
+                fillElement.classList.remove('progress-full');
+                textElement.classList.replace('text-[#f6465d]', 'text-[#2ebd85]');
+                warningElement.innerText = "الخزان قيد التعبئة...";
+                warningElement.classList.replace('text-[#f6465d]', 'text-[#848e9c]');
+            }
+        }
+
+        // جمع الأرب
+
+        // جمع الأرباح
+        function collectRewards() {
+            const now = Date.now();
+            const elapsedHours = (now - player.lastCollectTime) / (1000 * 60 * 60);
+            let pending = elapsedHours * totalHourlyRate;
+            
+            if (pending >= maxCapacityUSDT) pending = maxCapacityUSDT;
+
+            if (pending > 0.000001) {
+                player.balance += pending;
+                player.lastCollectTime = now;
+                saveGame();
+                gameLoop();
+                
+                // اهتزاز الهاتف عند الجمع
+                if (window.Telegram && window.Telegram.WebApp.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                }
+            }
+        }
+
+        // شراء جهاز جديد
+        function buyMiner(minerId) {
+            const miner = MINERS_DB[minerId];
+            if (player.balance >= miner.cost) {
+                player.balance -= miner.cost;
+                player.miners.push(minerId);
+                
+                collectRewards(); // جمع الأرباح المعلقة قبل تغيير الحسابات
+                calculateStats();
+                saveGame();
+                
+                alert(`تم شراء ${miner.name} بنجاح!`);
+            } else {
+                alert(`رصيدك غير كافٍ! تحتاج إلى ${miner.cost} ₮.`);
+            }
+        }
+
+        // حفظ اللعبة
+        function saveGame() {
+            localStorage.setItem('usdt_pro_miner', JSON.stringify(player));
+        }
+
+        // التشغيل الأولي
+        calculateStats();
+        setInterval(gameLoop, 1000);
+        gameLoop();
+    </script>
+</body>
+</html>
