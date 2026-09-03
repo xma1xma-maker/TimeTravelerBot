@@ -3,345 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bitcoin Miner</title>
+    <title>Bitcoin Pro Miner</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* ألوان وتصميم مطابق للصورة الأصلية */
-        body {
-            background-color: #f4f1ea; /* لون الخلفية الورقي */
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #333;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .card-bg {
-            background-color: #fdfbf7;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05 );
-            border: 1px solid #e5e0d8;
-        }
-        .grid-slot {
-            background-color: #f0ece1;
-            border: 1px solid #dcd6c8;
-            aspect-ratio: 1 / 1;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        .btn-yellow {
-            background-color: #facc15; /* أصفر مطابق للصورة */
-            color: #000;
-            transition: transform 0.1s;
-        }
-        .btn-yellow:active { transform: scale(0.95); }
-        
-        /* شريط التخزين */
-        .progress-bg {
-            background-color: #e5e0d8;
-            border-radius: 4px;
-            height: 6px;
-            overflow: hidden;
-            margin-top: 8px;
-        }
-        .progress-fill {
-            background-color: #f59e0b; /* برتقالي بتكوين */
-            height: 100%;
-            width: 0%;
-            transition: width 1s linear;
-        }
-        .progress-full { background-color: #ef4444; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="pb-10">
+<body>
 
-    <!-- الرأس: الرصيد واسم المستخدم -->
-    <div class="p-4">
-        <div class="card-bg p-3 rounded-lg flex justify-between items-center">
+    <!-- الرأس: الرصيد الإجمالي -->
+    <header class="p-4">
+        <div class="btc-card p-4 flex justify-between items-center">
             <div>
-                <p class="text-xs text-gray-500 font-bold">رصيدك</p>
-                <p class="text-xl font-bold">₿ <span id="main-balance">0.0000</span></p>
+                <p class="text-xs text-gray-400 font-bold mb-1">الرصيد الإجمالي</p>
+                <p class="text-2xl font-bold text-btc">
+                    ₿ <span id="main-balance">0.0000</span>
+                </p>
             </div>
-            <div class="bg-gray-200 px-3 py-1 rounded text-sm font-bold text-gray-600">
-                المعدن || USER
+            <div class="user-badge">
+                المعدن 👨‍💻
             </div>
         </div>
-        
-        <!-- تنبيه الحد الأدنى -->
-        <div class="bg-yellow-400 text-center text-sm font-bold py-1 mt-2 rounded">
-            الحد الأدنى 0.01 دولار
-        </div>
-    </div>
+    </header>
 
-    <!-- الأزرار الأربعة -->
-    <div class="grid grid-cols-4 gap-2 px-4 mb-4">
-        <button class="card-bg py-2 rounded-lg font-bold text-sm hover:bg-gray-100">لعبة</button>
-        <button class="card-bg py-2 rounded-lg font-bold text-sm hover:bg-gray-100">إيداع</button>
-        <button class="card-bg py-2 rounded-lg font-bold text-sm hover:bg-gray-100">ينسحب</button>
-        <button class="card-bg py-2 rounded-lg font-bold text-sm hover:bg-gray-100">الإحالات</button>
-    </div>
+    <!-- الأزرار الأربعة السريعة -->
+    <nav class="grid grid-cols-4 gap-3 px-4 mb-6">
+        <button class="action-btn">
+            <span class="text-xl mb-1">🎮</span> لعبة
+        </button>
+        <button class="action-btn">
+            <span class="text-xl mb-1">📥</span> إيداع
+        </button>
+        <button class="action-btn">
+            <span class="text-xl mb-1">📤</span> سحب
+        </button>
+        <button class="action-btn">
+            <span class="text-xl mb-1">👥</span> إحالات
+        </button>
+    </nav>
 
-    <!-- قسم التعدين (مستحق) -->
-    <div class="px-4 mb-6">
-        <div class="card-bg p-4 rounded-xl text-center relative">
-            <h3 class="font-bold text-gray-700">مستحق</h3>
-            <p class="text-3xl font-bold mt-1">₿ <span id="pending-balance">0.000000</span></p>
+    <!-- لوحة التعدين (المستحق ) -->
+    <section class="px-4 mb-8">
+        <div class="btc-card p-5 text-center relative">
+            <h3 class="font-bold text-gray-400 text-sm">البتكوين المستحق</h3>
+            <p class="text-4xl font-bold mt-2 mb-4 text-white">
+                <span class="text-2xl text-btc">₿</span> <span id="pending-balance">0.000000</span>
+            </p>
             
             <!-- شريط سعة التخزين -->
-            <div class="mt-3 mb-2 text-right">
-                <div class="flex justify-between text-[10px] text-gray-500 font-bold">
-                    <span id="storage-text">سعة التخزين: 1 ساعة</span>
-                    <span id="progress-text" class="text-yellow-600">0%</span>
+            <div class="mb-5 text-right">
+                <div class="flex justify-between text-[10px] font-bold mb-1">
+                    <span id="storage-text" class="text-gray-400">سعة التخزين: 1 ساعة</span>
+                    <span id="progress-text" class="text-btc">0%</span>
                 </div>
                 <div class="progress-bg">
                     <div id="progress-fill" class="progress-fill"></div>
                 </div>
-                <p id="storage-warning" class="text-[9px] text-gray-400 mt-1 text-center">يستمر التعدين حتى يمتلئ الخزان</p>
+                <p id="storage-warning" class="text-[10px] text-gray-500 mt-1 text-center">يستمر التعدين حتى يمتلئ الخزان</p>
             </div>
 
-            <div class="grid grid-cols-3 gap-2 mt-4">
-                <div class="bg-gray-100 p-2 rounded">
-                    <p class="text-xs font-bold">ساعة</p>
-                    <p class="text-sm font-bold text-gray-700">₿ <span id="rate-hourly">0.00</span></p>
+            <!-- الإحصائيات -->
+            <div class="grid grid-cols-3 gap-3 mb-5">
+                <div class="stat-box">
+                    <p class="text-[10px] text-gray-400 mb-1">في الساعة</p>
+                    <p class="text-sm font-bold text-white">₿ <span id="rate-hourly">0.00</span></p>
                 </div>
-                <div class="bg-gray-100 p-2 rounded">
-                    <p class="text-xs font-bold">يوم</p>
-                    <p class="text-sm font-bold text-gray-700">₿ <span id="rate-daily">0.00</span></p>
+                <div class="stat-box">
+                    <p class="text-[10px] text-gray-400 mb-1">في اليوم</p>
+                    <p class="text-sm font-bold text-white">₿ <span id="rate-daily">0.00</span></p>
                 </div>
-                <div class="bg-gray-100 p-2 rounded">
-                    <p class="text-xs font-bold">شهر</p>
-                    <p class="text-sm font-bold text-gray-700">₿ <span id="rate-monthly">0.00</span></p>
+                <div class="stat-box">
+                    <p class="text-[10px] text-gray-400 mb-1">في الشهر</p>
+                    <p class="text-sm font-bold text-white">₿ <span id="rate-monthly">0.00</span></p>
                 </div>
             </div>
 
-            <button onclick="collectRewards()" class="w-full mt-4 btn-yellow font-bold py-3 rounded-lg shadow-md text-lg">
-                يجمع
+            <button id="btn-collect" class="btn-collect w-full font-bold py-3 rounded-xl text-lg shadow-lg">
+                جمع الأرباح
             </button>
         </div>
-    </div>
+    </section>
 
-    <!-- شبكة العناصر المملوكة -->
-    <div class="px-4 mb-8">
-        <div class="grid grid-cols-3 gap-2 p-2 card-bg rounded-xl" id="miners-grid">
-            <!-- سيتم إضافة الأجهزة هنا عبر الجافاسكريبت -->
+    <!-- شبكة الأجهزة المملوكة -->
+    <section class="px-4 mb-8">
+        <h3 class="text-sm font-bold text-gray-300 mb-3 px-1">أجهزتك النشطة</h3>
+        <div class="grid grid-cols-3 gap-3 p-3 btc-card" id="miners-grid">
+            <!-- سيتم توليد الأجهزة هنا بواسطة الجافاسكريبت -->
         </div>
-    </div>
+    </section>
 
-    <!-- قسم المتجر -->
-    <div class="px-4 mb-10">
-        <h2 class="text-xl font-bold mb-4 text-gray-800 border-b-2 border-gray-300 pb-2">شراء أجهزة تعدين ₿</h2>
-        
+    <!-- المتجر -->
+    <section class="px-4 mb-10">
+        <h2 class="text-lg font-bold mb-4 text-white border-b border-gray-800 pb-2">شراء أجهزة تعدين 🛒</h2>
         <div class="grid grid-cols-2 gap-4" id="shop-container">
-            <!-- سيتم توليد المتجر هنا عبر الجافاسكريبت -->
+            <!-- سيتم توليد المتجر هنا بواسطة الجافاسكريبت -->
         </div>
-    </div>
+    </section>
 
-    <!-- كود JavaScript -->
-    <script>
-        // إعدادات الأجهزة (الأسعار والأرباح)
-        const MINERS_DB = {
-            0: { id: 0, name: "Free Miner", cost: 0, monthly: 1, capacityHours: 1, img: "https://cdn-icons-png.flaticon.com/512/1198/1198367.png" },
-            1: { id: 1, name: "Antminer S9", cost: 8, monthly: 10, capacityHours: 5, img: "https://cdn-icons-png.flaticon.com/512/2910/2910008.png" },
-            2: { id: 2, name: "Antminer S19", cost: 20, monthly: 30, capacityHours: 5, img: "https://cdn-icons-png.flaticon.com/512/1440/1440693.png" },
-            3: { id: 3, name: "BTC Farm", cost: 50, monthly: 100, capacityHours: 5, img: "https://cdn-icons-png.flaticon.com/512/2094/2094308.png" },
-            4: { id: 4, name: "Whale ASIC", cost: 150, monthly: 500, capacityHours: 5, img: "https://cdn-icons-png.flaticon.com/512/3260/3260867.png" }
-        };
-
-        // بيانات اللاعب
-        let player = {
-            balance: 0,
-            lastCollectTime: Date.now( ),
-            miners: [0] // يمتلك الجهاز المجاني افتراضياً
-        };
-
-        // استرجاع البيانات
-        const savedData = localStorage.getItem('btc_miner_save');
-        if (savedData) {
-            player = JSON.parse(savedData);
-        }
-
-        let totalHourlyRate = 0;
-        let maxCapacityBTC = 0;
-
-        // حساب الإحصائيات
-        function calculateStats() {
-            totalHourlyRate = 0;
-            maxCapacityBTC = 0;
-            let maxHours = 1;
-
-            player.miners.forEach(minerId => {
-                const miner = MINERS_DB[minerId];
-                const hourly = miner.monthly / 720;
-                totalHourlyRate += hourly;
-                maxCapacityBTC += (hourly * miner.capacityHours);
-                if (miner.capacityHours > maxHours) maxHours = miner.capacityHours;
-            });
-
-            document.getElementById('rate-hourly').innerText = totalHourlyRate.toFixed(4);
-            document.getElementById('rate-daily').innerText = (totalHourlyRate * 24).toFixed(3);
-            document.getElementById('rate-monthly').innerText = (totalHourlyRate * 720).toFixed(2);
-            document.getElementById('storage-text').innerText = `سعة التخزين: ${maxHours} ساعات`;
-            
-            renderGrid();
-            renderShop();
-        }
-
-        // تحديث الشاشة (العداد)
-        function gameLoop() {
-            const now = Date.now();
-            const elapsedHours = (now - player.lastCollectTime) / (1000 * 60 * 60);
-
-            let pending = elapsedHours * totalHourlyRate;
-            let isFull = false;
-
-            if (pending >= maxCapacityBTC) {
-                pending = maxCapacityBTC;
-                isFull = true;
-            }
-
-            document.getElementById('main-balance').innerText = player.balance.toFixed(4);
-            document.getElementById('pending-balance').innerText = pending.toFixed(6);
-
-            const progressPercent = (pending / maxCapacityBTC) * 100;
-            const fillElement = document.getElementById('progress-fill');
-            const textElement = document.getElementById('progress-text');
-            const warningElement = document.getElementById('storage-warning');
-
-            fillElement.style.width = `${progressPercent}%`;
-            textElement.innerText = `${Math.floor(progressPercent)}%`;
-
-            if (isFull) {
-                fillElement.classList.add('progress-full');
-                textElement.classList.replace('text-yellow-600', 'text-red-500');
-                warningElement.innerText = "مكتمل! يرجى الجمع";
-                warningElement.classList.replace('text-gray-400', 'text-red-500');
-            } else {
-                fillElement.classList.remove('progress-full');
-                textElement.classList.replace('text-red-500', 'text-yellow-600');
-                warningElement.innerText = "يستمر التعدين حتى يمتلئ الخزان";
-                warningElement.classList.replace('text-red-500', 'text-gray-400');
-            }
-        }
-
-        // جمع الأرباح
-        function collectRewards() {
-            const now = Date.now();
-            const elapsedHours = (now - player.lastCollectTime) / (1000 * 60 * 60);
-            let pending = elapsedHours * totalHourlyRate;
-            
-            if (pending >= maxCapacityBTC) pending = maxCapacityBTC;
-
-            if (pending > 0.000001) {
-                player.balance += pending;
-                player.lastCollectTime = now;
-                saveGame();
-                gameLoop();
-                
-                if (window.Telegram && window.Telegram.WebApp.HapticFeedback) {
-                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-                }
-            }
-        }
-
-        // شراء جهاز
-        function buyMiner(minerId) {
-            const miner = MINERS_DB[minerId];
-            if (player.balance >= miner.cost) {
-                player.balance -= miner.cost;
-                player.miners.push(minerId);
-                
-                collectRewards(); 
-                calculateStats();
-                saveGame();
-            } else {
-                alert(`رصيدك غير كافٍ! تحتاج إلى ₿ ${miner.cost}`);
-            }
-        }
-
-        // حفظ اللعبة
-        function saveGame() {
-            localStorage.setItem('btc_miner_save', JSON.stringify(player));
-        }
-
-        // رسم شبكة الأجهزة المملوكة
-        function renderGrid() {
-            const grid = document.getElementById('miners-grid');
-            grid.innerHTML = '';
-            
-            // رسم الأجهزة المملوكة
-            player.miners.forEach(minerId => {
-                const miner = MINERS_DB[minerId];
-                grid.innerHTML += `
-                    <div class="grid-slot">
-                        <img src="${miner.img}" class="w-12 h-12 drop-shadow-md">
-                    </div>
-                `;
-            });
-
-            // إكمال الشبكة بمربعات فارغة (لتصبح 9 مربعات على الأقل)
-            const emptySlots = Math.max(0, 9 - player.miners.length);
-            for(let i=0; i<emptySlots; i++) {
-                grid.innerHTML += `<div class="grid-slot"></div>`;
-            }
-        }
-
-        // رسم المتجر
-        function renderShop() {
-            const shop = document.getElementById('shop-container');
-            shop.innerHTML = '';
-
-            // عرض الأجهزة من 1 إلى 4 (تخطي المجاني)
-            for(let i=1; i<=4; i++) {
-                const miner = MINERS_DB[i];
-                const isOwned = player.miners.includes(i);
-                const dailyIncome = (miner.monthly / 30).toFixed(2);
-                const dailyPercent = Math.round((miner.monthly / miner.cost / 30) * 100);
-
-                if (isOwned) {
-                    shop.innerHTML += `
-                        <div class="card-bg p-3 rounded-xl text-center relative opacity-75">
-                            <p class="text-gray-500 text-xs font-bold">Income</p>
-                            <p class="text-green-600 font-bold text-lg">₿ ${miner.monthly}</p>
-                            <p class="text-gray-400 text-[10px] mb-2">per month</p>
-                            
-                            <img src="${miner.img}" class="w-16 h-16 mx-auto my-2 opacity-50">
-                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-green-700 font-bold text-xl rotate-[-15deg] bg-white/90 px-2 rounded border border-green-200">
-                                مكتمل
-                            </div>
-
-                            <div class="flex justify-between text-[10px] text-gray-600 mb-2 font-bold mt-4">
-                                <span>بنسبة ${dailyPercent}% يومي</span>
-                                <span>دخل ₿ ${dailyIncome}</span>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    shop.innerHTML += `
-                        <div class="card-bg p-3 rounded-xl text-center">
-                            <p class="text-gray-500 text-xs font-bold">Income</p>
-                            <p class="text-green-600 font-bold text-lg">₿ ${miner.monthly}</p>
-                            <p class="text-gray-400 text-[10px] mb-2">per month</p>
-                            
-                            <img src="${miner.img}" class="w-16 h-16 mx-auto my-2 drop-shadow-lg">
-
-                            <div class="flex justify-between text-[10px] text-gray-600 mb-2 font-bold mt-4">
-                                <span>بنسبة ${dailyPercent}% يومي</span>
-                                <span>دخل ₿ ${dailyIncome}</span>
-                            </div>
-                            <button onclick="buyMiner(${i})" class="w-full btn-yellow font-bold py-2 rounded shadow text-sm">
-                                ${miner.cost} ₿ يشتري
-                            </button>
-                        </div>
-                    `;
-                }
-            }
-        }
-
-        // التشغيل الأولي
-        calculateStats();
-        setInterval(gameLoop, 1000);
-        gameLoop();
-    </script>
+    <!-- ربط ملف البرمجة -->
+    <script src="script.js"></script>
 </body>
 </html>
