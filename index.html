@@ -34,12 +34,6 @@
             transition: all 0.2s;
         }
         .btn-collect:active { transform: scale(0.95); }
-        .btn-collect:disabled {
-            background: #374151;
-            border-color: #4b5563;
-            color: #9ca3af;
-            transform: none;
-        }
         .miner-slot {
             background: rgba(0, 0, 0, 0.3);
             border: 1px dashed rgba(255, 255, 255, 0.15);
@@ -65,12 +59,17 @@
             transition: width 1s linear;
         }
         .progress-full {
-            background: #ef4444; /* أحمر عند الامتلاء */
+            background: #ef4444;
             box-shadow: 0 0 10px #ef4444;
+        }
+        .bottom-nav {
+            background: rgba(11, 16, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border-color);
         }
     </style>
 </head>
-<body class="pb-24">
+<body class="pb-28"> <!-- مساحة سفلية أكبر لعدم تغطية المتجر بشريط التنقل -->
 
     <!-- الرأس -->
     <div class="p-4 pt-6">
@@ -81,10 +80,31 @@
                     <span class="text-xl">₮</span> <span id="main-balance">0.0000</span>
                 </p>
             </div>
-            <div class="bg-black/40 px-4 py-2 rounded-xl text-sm font-bold border border-white/10">
+            <div class="bg-black/40 px-4 py-2 rounded-xl text-sm font-bold border border-white/10 flex items-center gap-2">
+                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="w-6 h-6 rounded-full">
                 <span>المعدن</span>
             </div>
         </div>
+    </div>
+
+    <!-- الأزرار الأربعة (لعبة، إيداع، سحب، إحالات ) -->
+    <div class="grid grid-cols-4 gap-3 px-4 mb-6">
+        <button class="glass-card py-3 rounded-2xl font-bold text-xs flex flex-col items-center gap-2 hover:bg-white/5 transition">
+            <div class="bg-blue-500/20 p-2 rounded-full text-blue-400"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 6 18.5 6s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></div>
+            لعبة
+        </button>
+        <button class="glass-card py-3 rounded-2xl font-bold text-xs flex flex-col items-center gap-2 hover:bg-white/5 transition">
+            <div class="bg-green-500/20 p-2 rounded-full text-green-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg></div>
+            إيداع
+        </button>
+        <button class="glass-card py-3 rounded-2xl font-bold text-xs flex flex-col items-center gap-2 hover:bg-white/5 transition">
+            <div class="bg-red-500/20 p-2 rounded-full text-red-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></div>
+            سحب
+        </button>
+        <button class="glass-card py-3 rounded-2xl font-bold text-xs flex flex-col items-center gap-2 hover:bg-white/5 transition">
+            <div class="bg-purple-500/20 p-2 rounded-full text-purple-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg></div>
+            إحالات
+        </button>
     </div>
 
     <!-- قسم التعدين -->
@@ -125,6 +145,21 @@
             <button id="btn-collect" onclick="collectRewards()" class="btn-collect w-full font-bold py-4 rounded-xl text-lg text-white flex justify-center items-center gap-2 shadow-lg">
                 جمع الأرباح
             </button>
+        </div>
+    </div>
+
+    <!-- شبكة الأجهزة المملوكة -->
+    <div class="px-4 mb-8">
+        <div class="flex justify-between items-end mb-3 px-1">
+            <h3 class="text-sm font-bold text-gray-300">أجهزتك النشطة</h3>
+        </div>
+        <div class="grid grid-cols-3 gap-3 p-3 glass-card">
+            <div class="miner-slot bg-gray-500/10 border-gray-500/40 border-solid relative">
+                <div class="absolute top-1 right-1 bg-gray-600 text-white text-[8px] px-1 rounded">مجاني</div>
+                <img src="https://cdn-icons-png.flaticon.com/512/1198/1198367.png" class="w-10 h-10 opacity-70">
+            </div>
+            <div class="miner-slot"></div>
+            <div class="miner-slot"></div>
         </div>
     </div>
 
@@ -174,10 +209,28 @@
         </div>
     </div>
 
-    <!-- كود JavaScript (عقل التطبيق) -->
+    <!-- شريط التنقل السفلي -->
+    <div class="bottom-nav fixed bottom-0 w-full flex justify-around items-center p-3 z-50">
+        <div class="flex flex-col items-center text-[#26A17B] cursor-pointer">
+            <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+            <span class="text-[10px] font-bold">التعدين</span>
+        </div>
+        <div class="flex flex-col items-center text-gray-500 hover:text-gray-300 cursor-pointer transition">
+            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+            <span class="text-[10px] font-bold">المهام</span>
+        </div>
+        <div class="flex flex-col items-center text-gray-500 hover:text-gray-300 cursor-pointer transition">
+            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            <span class="text-[10px] font-bold">الأصدقاء</span>
+        </div>
+        <div class="flex flex-col items-center text-gray-500 hover:text-gray-300 cursor-pointer transition">
+            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+            <span class="text-[10px] font-bold">المحفظة</span>
+        </div>
+    </div>
+
+    <!-- كود JavaScript -->
     <script>
-        // إعدادات الأجهزة (الأسعار والأرباح)
-        // الشهر = 30 يوم = 720 ساعة
         const MINERS_DB = {
             0: { id: 0, name: "Free Miner", cost: 0, monthly: 1, capacityHours: 1 },
             1: { id: 1, name: "Starter", cost: 8, monthly: 10, capacityHours: 5 },
@@ -186,51 +239,43 @@
             4: { id: 4, name: "Whale VIP", cost: 150, monthly: 500, capacityHours: 5 }
         };
 
-        // بيانات اللاعب الافتراضية
         let player = {
             balance: 0,
             lastCollectTime: Date.now(),
-            miners: [0] // يمتلك الجهاز المجاني (رقم 0) افتراضياً
+            miners: [0]
         };
 
-        // استرجاع البيانات المحفوظة إذا كان المستخدم قد دخل سابقاً
         const savedData = localStorage.getItem('usdt_miner_save');
         if (savedData) {
             player = JSON.parse(savedData);
         }
 
-        // متغيرات لحساب الأرباح
         let totalHourlyRate = 0;
         let maxCapacityUSDT = 0;
 
-        // دالة لحساب قوة التعدين الحالية للمستخدم
         function calculateStats() {
             totalHourlyRate = 0;
             maxCapacityUSDT = 0;
-            let maxHours = 1; // السعة الافتراضية
+            let maxHours = 1;
 
             player.miners.forEach(minerId => {
                 const miner = MINERS_DB[minerId];
-                const hourly = miner.monthly / 720; // حساب الربح في الساعة
+                const hourly = miner.monthly / 720;
                 totalHourlyRate += hourly;
                 maxCapacityUSDT += (hourly * miner.capacityHours);
                 if (miner.capacityHours > maxHours) maxHours = miner.capacityHours;
             });
 
-            // تحديث النصوص في الواجهة
             document.getElementById('rate-hourly').innerText = totalHourlyRate.toFixed(4);
             document.getElementById('rate-daily').innerText = (totalHourlyRate * 24).toFixed(3);
             document.getElementById('rate-monthly').innerText = (totalHourlyRate * 720).toFixed(2);
             document.getElementById('storage-text').innerText = `سعة التخزين (${maxHours} ساعات)`;
         }
 
-        // دالة تحديث العدادات (تعمل كل ثانية)
         function gameLoop() {
             const now = Date.now();
-            const elapsedMilliseconds = now - player.lastCollectTime;
-            const elapsedHours = elapsedMilliseconds / (1000 * 60 * 60);
+            const elapsedHours = (now - player.lastCollectTime) / (1000 * 60 * 60);
 
-            // حساب الرصيد المعلق (لا يتجاوز السعة القصوى)
             let pending = elapsedHours * totalHourlyRate;
             let isFull = false;
 
@@ -239,11 +284,9 @@
                 isFull = true;
             }
 
-            // تحديث الأرقام في الشاشة
             document.getElementById('main-balance').innerText = player.balance.toFixed(4);
             document.getElementById('pending-balance').innerText = pending.toFixed(6);
 
-            // تحديث شريط التقدم
             const progressPercent = (pending / maxCapacityUSDT) * 100;
             const fillElement = document.getElementById('progress-fill');
             const textElement = document.getElementById('progress-text');
@@ -265,7 +308,6 @@
             }
         }
 
-        // دالة جمع الأرباح
         function collectRewards() {
             const now = Date.now();
             const elapsedHours = (now - player.lastCollectTime) / (1000 * 60 * 60);
@@ -275,27 +317,22 @@
 
             if (pending > 0.000001) {
                 player.balance += pending;
-                player.lastCollectTime = now; // تصفير العداد
+                player.lastCollectTime = now;
                 saveGame();
-                gameLoop(); // تحديث الشاشة فوراً
+                gameLoop();
                 
-                // اهتزاز الهاتف إذا كان مدعوماً في تليجرام
                 if (window.Telegram && window.Telegram.WebApp.HapticFeedback) {
                     window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
                 }
             }
         }
 
-        // دالة شراء جهاز جديد
         function buyMiner(minerId) {
             const miner = MINERS_DB[minerId];
             if (player.balance >= miner.cost) {
                 player.balance -= miner.cost;
                 player.miners.push(minerId);
-                
-                // نجمع الأرباح المعلقة أولاً حتى لا تضيع بسبب تغيير الحسابات
                 collectRewards(); 
-                
                 calculateStats();
                 saveGame();
                 alert(`تم شراء ${miner.name} بنجاح! زادت أرباحك وسعة تخزينك.`);
@@ -304,16 +341,13 @@
             }
         }
 
-        // حفظ اللعبة في المتصفح
         function saveGame() {
             localStorage.setItem('usdt_miner_save', JSON.stringify(player));
         }
 
-        // تشغيل اللعبة عند فتح الصفحة
         calculateStats();
-        setInterval(gameLoop, 1000); // تحديث الشاشة كل ثانية
-        gameLoop(); // تشغيل مرة واحدة فوراً لمنع التأخير
-
+        setInterval(gameLoop, 1000);
+        gameLoop();
     </script>
 </body>
 </html>
