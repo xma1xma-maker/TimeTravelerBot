@@ -3,97 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Time Traveler</title>
+    <title>Time Traveler Mini App</title>
+    <!-- مكتبة تليجرام الأساسية -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Tailwind CSS للتخطيط -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* ربط ألوان التطبيق بألوان تليجرام الرسمية ليتوافق مع الوضع الليلي/النهاري */
+        :root {
+            --tg-bg: var(--tg-theme-bg-color, #182232 );
+            --tg-text: var(--tg-theme-text-color, #ffffff);
+            --tg-hint: var(--tg-theme-hint-color, #94a3b8);
+            --tg-btn: var(--tg-theme-button-color, #3b82f6);
+            --tg-btn-text: var(--tg-theme-button-text-color, #ffffff);
+            --tg-sec-bg: var(--tg-theme-secondary-bg-color, #1e293b);
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --card-border: rgba(255, 255, 255, 0.1);
+        }
+
         body {
-            background-color: #f4f1ea; /* لون مقارب للورق/الخلفية في صورتك */
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--tg-bg);
+            color: var(--tg-text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            user-select: none; /* منع تحديد النصوص */
+            -webkit-tap-highlight-color: transparent;
         }
-        .card-bg {
-            background-color: #fdfbf7;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05 );
-            border: 1px solid #e5e0d8;
+
+        /* تصميم البطاقات العصري (Glassmorphism) */
+        .tg-card {
+            background-color: var(--tg-sec-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
+        .tg-button {
+            background-color: var(--tg-btn);
+            color: var(--tg-btn-text);
+            transition: transform 0.1s;
+        }
+        
+        .tg-button:active {
+            transform: scale(0.96);
+        }
+
         .grid-slot {
-            background-color: #f0ece1;
-            border: 1px solid #dcd6c8;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px dashed var(--tg-hint);
             aspect-ratio: 1 / 1;
-            border-radius: 8px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
+
+        /* ألوان النصوص المساعدة */
+        .text-hint { color: var(--tg-hint); }
+        .text-accent { color: #38bdf8; } /* لون أزرق بلوري للزمن */
     </style>
 </head>
-<body class="pb-20 text-gray-800">
+<body class="pb-10">
+
+    <!-- تهيئة تليجرام -->
+    <script>
+        window.Telegram.WebApp.expand(); // ملء الشاشة
+        window.Telegram.WebApp.ready();
+    </script>
 
     <!-- الرأس: الرصيد واسم المستخدم -->
     <div class="p-4">
-        <div class="card-bg p-3 rounded-lg flex justify-between items-center">
+        <div class="tg-card p-4 flex justify-between items-center">
             <div>
-                <p class="text-xs text-gray-500 font-bold">رصيدك</p>
-                <p class="text-xl font-bold">💰 <span id="main-balance">0.05</span></p>
+                <p class="text-xs text-hint font-bold mb-1">رصيد طاقة الزمن</p>
+                <p class="text-2xl font-bold text-accent">💎 <span id="main-balance">0.05</span></p>
             </div>
-            <div class="bg-gray-200 px-3 py-1 rounded text-sm font-bold text-gray-600">
-                المسافر || USER
+            <div class="bg-black/20 px-3 py-2 rounded-lg text-sm font-bold border border-white/5">
+                <span id="username">المسافر</span> 🧑‍🚀
             </div>
-        </div>
-        
-        <!-- تنبيه الحد الأدنى -->
-        <div class="bg-yellow-400 text-center text-sm font-bold py-1 mt-2 rounded">
-            الحد الأدنى 0.01 دولار
         </div>
     </div>
 
-    <!-- الأزرار الأربعة (لعبة، إيداع، سحب، إحالات) -->
-    <div class="grid grid-cols-4 gap-2 px-4 mb-4">
-        <button class="card-bg py-2 rounded-lg font-bold text-sm hover:bg-gray-100">لعبة</button>
-        <button class="card-bg py-2 rounded-lg font-bold text-sm hover:bg-gray-100">إيداع</button>
-        <button class="card-bg py-2 rounded-lg font-bold text-sm hover:bg-gray-100">ينسحب</button>
-        <button class="card-bg py-2 rounded-lg font-bold text-sm hover:bg-gray-100">الإحالات</button>
+    <!-- الأزرار الأربعة -->
+    <div class="grid grid-cols-4 gap-3 px-4 mb-6">
+        <button class="tg-card py-3 rounded-xl font-bold text-xs flex flex-col items-center gap-1 active:scale-95 transition">
+            <span class="text-lg">🎮</span> لعبة
+        </button>
+        <button class="tg-card py-3 rounded-xl font-bold text-xs flex flex-col items-center gap-1 active:scale-95 transition">
+            <span class="text-lg">📥</span> إيداع
+        </button>
+        <button class="tg-card py-3 rounded-xl font-bold text-xs flex flex-col items-center gap-1 active:scale-95 transition">
+            <span class="text-lg">📤</span> سحب
+        </button>
+        <button class="tg-card py-3 rounded-xl font-bold text-xs flex flex-col items-center gap-1 active:scale-95 transition">
+            <span class="text-lg">👥</span> إحالات
+        </button>
     </div>
 
     <!-- قسم التعدين (المستحق) -->
     <div class="px-4 mb-6">
-        <div class="card-bg p-4 rounded-xl text-center relative">
-            <h3 class="font-bold text-gray-700">مستحق</h3>
-            <p class="text-3xl font-bold mt-1">💰 <span id="pending-balance">0.000041</span></p>
+        <div class="tg-card p-5 text-center relative overflow-hidden">
+            <!-- تأثير إضاءة في الخلفية -->
+            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl"></div>
             
-            <div class="grid grid-cols-3 gap-2 mt-4">
-                <div class="bg-gray-100 p-2 rounded">
-                    <p class="text-xs font-bold">ساعة</p>
-                    <p class="text-sm font-bold text-gray-700">💰 0.00</p>
+            <h3 class="font-bold text-hint relative z-10">الطاقة المستحقة</h3>
+            <p class="text-4xl font-bold mt-2 mb-4 relative z-10">💎 <span id="pending-balance">0.000041</span></p>
+            
+            <div class="grid grid-cols-3 gap-3 mt-4 relative z-10">
+                <div class="bg-black/20 p-2 rounded-lg border border-white/5">
+                    <p class="text-[10px] text-hint">في الساعة</p>
+                    <p class="text-sm font-bold mt-1">💎 0.00</p>
                 </div>
-                <div class="bg-gray-100 p-2 rounded">
-                    <p class="text-xs font-bold">يوم</p>
-                    <p class="text-sm font-bold text-gray-700">💰 0.10</p>
+                <div class="bg-black/20 p-2 rounded-lg border border-white/5">
+                    <p class="text-[10px] text-hint">في اليوم</p>
+                    <p class="text-sm font-bold mt-1">💎 0.10</p>
                 </div>
-                <div class="bg-gray-100 p-2 rounded">
-                    <p class="text-xs font-bold">شهر</p>
-                    <p class="text-sm font-bold text-gray-700">💰 3.10</p>
+                <div class="bg-black/20 p-2 rounded-lg border border-white/5">
+                    <p class="text-[10px] text-hint">في الشهر</p>
+                    <p class="text-sm font-bold mt-1">💎 3.10</p>
                 </div>
             </div>
 
-            <button class="w-full mt-4 bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3 rounded-lg shadow-md text-lg">
-                يجمع
+            <button class="tg-button w-full mt-5 font-bold py-3 rounded-xl shadow-lg text-lg relative z-10">
+                ⚡ تجميع الطاقة
             </button>
         </div>
     </div>
 
-    <!-- شبكة العناصر المملوكة (البوابات الزمنية التي اشتراها) -->
+    <!-- شبكة العناصر المملوكة (البوابات الزمنية) -->
     <div class="px-4 mb-8">
-        <div class="grid grid-cols-3 gap-2 p-2 card-bg rounded-xl">
-            <!-- العنصر الأول (مملوك) -->
-            <div class="grid-slot">
-                <!-- صورة ديناصور كمثال للعصر الأول -->
-                <img src="https://cdn-icons-png.flaticon.com/512/3047/3047886.png" alt="Dino" class="w-12 h-12 drop-shadow-md">
+        <h3 class="text-sm font-bold text-hint mb-3 px-1">بواباتك النشطة</h3>
+        <div class="grid grid-cols-3 gap-3 p-3 tg-card">
+            <!-- بوابة مملوكة -->
+            <div class="grid-slot bg-blue-500/10 border-blue-500/30 border-solid">
+                <span class="text-3xl drop-shadow-lg">🦖</span>
             </div>
-            <!-- باقي المربعات فارغة -->
-            <div class="grid-slot"></div>
-            <div class="grid-slot"></div>
-            <div class="grid-slot"></div>
+            <!-- مربعات فارغة -->
             <div class="grid-slot"></div>
             <div class="grid-slot"></div>
             <div class="grid-slot"></div>
@@ -102,63 +146,60 @@
         </div>
     </div>
 
-    <!-- قسم المتجر (ينزل لتحت يلاقيه ) -->
+    <!-- قسم المتجر -->
     <div class="px-4 mb-10">
-        <h2 class="text-xl font-bold mb-4 text-gray-800 border-b-2 border-gray-300 pb-2">شراء بوابات زمنية ⏳</h2>
+        <h2 class="text-lg font-bold mb-4 border-b border-white/10 pb-2">شراء بوابات زمنية ⏳</h2>
         
         <div class="grid grid-cols-2 gap-4">
             
             <!-- بطاقة 1 (مكتمل) -->
-            <div class="card-bg p-3 rounded-xl text-center relative">
-                <p class="text-gray-500 text-xs font-bold">Income</p>
-                <p class="text-green-600 font-bold text-lg">💰 3.00</p>
-                <p class="text-gray-400 text-[10px] mb-2">per month</p>
+            <div class="tg-card p-4 text-center relative opacity-75">
+                <p class="text-hint text-[10px] font-bold uppercase tracking-wider">الدخل الشهري</p>
+                <p class="text-green-400 font-bold text-xl mt-1">💎 3.00</p>
                 
-                <!-- صورة العصر -->
-                <img src="https://cdn-icons-png.flaticon.com/512/3047/3047886.png" class="w-20 h-20 mx-auto my-2 opacity-50">
-                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-green-700 font-bold text-xl rotate-[-15deg] bg-white/80 px-2 rounded">
-                    مكتمل
+                <div class="text-5xl my-4 grayscale">🦖</div>
+                
+                <div class="absolute inset-0 flex items-center justify-center z-10">
+                    <div class="bg-black/80 text-green-400 font-bold px-4 py-1 rounded-full border border-green-500/30 transform -rotate-12 backdrop-blur-sm">
+                        مكتمل ✓
+                    </div>
                 </div>
 
-                <div class="flex justify-between text-[10px] text-gray-600 mb-2 font-bold mt-4">
-                    <span>بنسبة 10% يومي</span>
-                    <span>دخل 💰 0.10</span>
+                <div class="flex justify-between text-[10px] text-hint mt-4 bg-black/20 p-2 rounded">
+                    <span>10% يومي</span>
+                    <span class="text-white">💎 0.10</span>
                 </div>
             </div>
 
-            <!-- بطاقة 2 (متاح للشراء ) -->
-            <div class="card-bg p-3 rounded-xl text-center">
-                <p class="text-gray-500 text-xs font-bold">Income</p>
-                <p class="text-green-600 font-bold text-lg">💰 10.80</p>
-                <p class="text-gray-400 text-[10px] mb-2">per month</p>
+            <!-- بطاقة 2 (متاح للشراء) -->
+            <div class="tg-card p-4 text-center">
+                <p class="text-hint text-[10px] font-bold uppercase tracking-wider">الدخل الشهري</p>
+                <p class="text-green-400 font-bold text-xl mt-1">💎 10.80</p>
                 
-                <!-- صورة العصر (فرعوني مثلا) -->
-                <img src="https://cdn-icons-png.flaticon.com/512/2727/2727610.png" class="w-20 h-20 mx-auto my-2 drop-shadow-lg">
+                <div class="text-5xl my-4 drop-shadow-[0_0_15px_rgba(250,204,21,0.3)]">🏺</div>
 
-                <div class="flex justify-between text-[10px] text-gray-600 mb-2 font-bold mt-4">
-                    <span>بنسبة 12% يومي</span>
-                    <span>دخل 💰 0.36</span>
+                <div class="flex justify-between text-[10px] text-hint mt-4 bg-black/20 p-2 rounded mb-3">
+                    <span>12% يومي</span>
+                    <span class="text-white">💎 0.36</span>
                 </div>
-                <button class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 rounded shadow text-sm">
-                    3 💰 يشتري
+                <button class="tg-button w-full font-bold py-2 rounded-lg text-sm">
+                    شراء بـ 3 💎
                 </button>
             </div>
 
-            <!-- بطاقة 3 (متاح للشراء ) -->
-            <div class="card-bg p-3 rounded-xl text-center">
-                <p class="text-gray-500 text-xs font-bold">Income</p>
-                <p class="text-green-600 font-bold text-lg">💰 21.00</p>
-                <p class="text-gray-400 text-[10px] mb-2">per month</p>
+            <!-- بطاقة 3 (متاح للشراء) -->
+            <div class="tg-card p-4 text-center">
+                <p class="text-hint text-[10px] font-bold uppercase tracking-wider">الدخل الشهري</p>
+                <p class="text-green-400 font-bold text-xl mt-1">💎 21.00</p>
                 
-                <!-- صورة العصر (مستقبلي) -->
-                <img src="https://cdn-icons-png.flaticon.com/512/2094/2094308.png" class="w-20 h-20 mx-auto my-2 drop-shadow-lg">
+                <div class="text-5xl my-4 drop-shadow-[0_0_15px_rgba(56,189,248,0.3)]">🚀</div>
 
-                <div class="flex justify-between text-[10px] text-gray-600 mb-2 font-bold mt-4">
-                    <span>بنسبة 14% يومي</span>
-                    <span>دخل 💰 0.70</span>
+                <div class="flex justify-between text-[10px] text-hint mt-4 bg-black/20 p-2 rounded mb-3">
+                    <span>14% يومي</span>
+                    <span class="text-white">💎 0.70</span>
                 </div>
-                <button class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 rounded shadow text-sm">
-                    5 💰 يشتري
+                <button class="tg-button w-full font-bold py-2 rounded-lg text-sm">
+                    شراء بـ 5 💎
                 </button>
             </div>
 
