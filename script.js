@@ -113,7 +113,7 @@ async function loadUserData() {
 }
 
 async function rewardInviter(inviterId) {
-    const rewardAmount = 0.001; 
+    const rewardAmount = 0.1; // 🟢 تم تعديل المكافأة هنا لتصبح 0.1
     const { data: inviter } = await db.from('users').select('balance, referrals_count, referral_earnings').eq('id', inviterId).single();
     
     if (inviter) {
