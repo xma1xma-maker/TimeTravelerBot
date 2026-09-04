@@ -1,8 +1,8 @@
 /* الألوان الأساسية للتطبيق */
 :root {
-    --bg-main: #0f172a; /* لون خلفية داكن فاخر */
-    --bg-card: #1e293b; /* لون البطاقات */
-    --btc-color: #F7931A; /* لون البتكوين البرتقالي/الذهبي */
+    --bg-main: #0f172a;
+    --bg-card: #1e293b;
+    --btc-color: #F7931A;
     --btc-hover: #e08516;
     --border-color: #334155;
 }
@@ -16,7 +16,6 @@ body {
     padding-bottom: 40px;
 }
 
-/* تصميم البطاقات */
 .btc-card {
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -24,12 +23,10 @@ body {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-/* لون نصوص البتكوين */
 .text-btc {
     color: var(--btc-color);
 }
 
-/* شارة المستخدم */
 .user-badge {
     background-color: rgba(0, 0, 0, 0.3);
     padding: 6px 12px;
@@ -39,7 +36,6 @@ body {
     border: 1px solid var(--border-color);
 }
 
-/* الأزرار الأربعة العلوية */
 .action-btn {
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -58,7 +54,6 @@ body {
     background-color: #2dd4bf20;
 }
 
-/* زر جمع الأرباح */
 .btn-collect {
     background-color: var(--btc-color);
     color: #000000;
@@ -68,7 +63,6 @@ body {
     transform: scale(0.96);
 }
 
-/* مربعات الإحصائيات */
 .stat-box {
     background-color: rgba(0, 0, 0, 0.2);
     padding: 10px;
@@ -76,7 +70,6 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* شريط التخزين */
 .progress-bg {
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 6px;
@@ -95,7 +88,6 @@ body {
     box-shadow: 0 0 10px #ef4444;
 }
 
-/* شبكة الأجهزة */
 .grid-slot {
     background-color: rgba(0, 0, 0, 0.2);
     border: 1px dashed var(--border-color);
