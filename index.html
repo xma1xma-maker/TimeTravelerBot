@@ -10,7 +10,7 @@
 </head>
 <body>
 
-    <!-- الرأس: الرصيد الإجمالي -->
+    <!-- الرأس: الرصيد الإجمالي (ثابت في كل الصفحات ) -->
     <header class="p-4">
         <div class="btc-card p-4 flex justify-between items-center">
             <div>
@@ -25,82 +25,100 @@
         </div>
     </header>
 
-    <!-- الأزرار الأربعة السريعة -->
-    <nav class="grid grid-cols-4 gap-3 px-4 mb-6">
-        <!-- تم التعديل هنا: إضافة id وتغيير الاسم إلى مكافأة -->
-        <button id="btn-daily-bonus" class="action-btn">
-            <span class="text-xl mb-1">🎁</span> مكافأة
-        </button>
-        <button class="action-btn">
-            <span class="text-xl mb-1">📥</span> إيداع
-        </button>
-        <button class="action-btn">
-            <span class="text-xl mb-1">📤</span> سحب
-        </button>
-        <button class="action-btn">
-            <span class="text-xl mb-1">👥</span> إحالات
-        </button>
+    <!-- ================= صفحة التعدين (الرئيسية) ================= -->
+    <div id="view-home" class="view-section active">
+        <!-- الأزرار الأربعة السريعة -->
+        <nav class="grid grid-cols-4 gap-3 px-4 mb-6">
+            <button id="btn-daily-bonus" class="action-btn">
+                <span class="text-xl mb-1">🎁</span> مكافأة
+            </button>
+            <button class="action-btn">
+                <span class="text-xl mb-1">📥</span> إيداع
+            </button>
+            <button class="action-btn">
+                <span class="text-xl mb-1">📤</span> سحب
+            </button>
+            <button class="action-btn">
+                <span class="text-xl mb-1">👥</span> إحالات
+            </button>
+        </nav>
+
+        <!-- لوحة التعدين -->
+        <section class="px-4 mb-8">
+            <div class="btc-card p-5 text-center relative">
+                <h3 class="font-bold text-gray-400 text-sm">البتكوين المستحق</h3>
+                <p class="text-4xl font-bold mt-2 mb-4 text-white">
+                    <span class="text-2xl text-btc">₿</span> <span id="pending-balance">0.000000</span>
+                </p>
+                
+                <div class="mb-5 text-right">
+                    <div class="flex justify-between text-[10px] font-bold mb-1">
+                        <span id="storage-text" class="text-gray-400">سعة التخزين: 1 ساعة</span>
+                        <span id="progress-text" class="text-btc">0%</span>
+                    </div>
+                    <div class="progress-bg">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                    <p id="storage-warning" class="text-[10px] text-gray-500 mt-1 text-center">يستمر التعدين حتى يمتلئ الخزان</p>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3 mb-5">
+                    <div class="stat-box">
+                        <p class="text-[10px] text-gray-400 mb-1">في الساعة</p>
+                        <p class="text-sm font-bold text-white">₿ <span id="rate-hourly">0.00</span></p>
+                    </div>
+                    <div class="stat-box">
+                        <p class="text-[10px] text-gray-400 mb-1">في اليوم</p>
+                        <p class="text-sm font-bold text-white">₿ <span id="rate-daily">0.00</span></p>
+                    </div>
+                    <div class="stat-box">
+                        <p class="text-[10px] text-gray-400 mb-1">في الشهر</p>
+                        <p class="text-sm font-bold text-white">₿ <span id="rate-monthly">0.00</span></p>
+                    </div>
+                </div>
+
+                <button id="btn-collect" class="btn-collect w-full font-bold py-3 rounded-xl text-lg shadow-lg">
+                    جمع الأرباح
+                </button>
+            </div>
+        </section>
+
+        <!-- شبكة الأجهزة -->
+        <section class="px-4 mb-8">
+            <h3 class="text-sm font-bold text-gray-300 mb-3 px-1">أجهزتك النشطة</h3>
+            <div class="grid grid-cols-3 gap-3 p-3 btc-card" id="miners-grid"></div>
+        </section>
+
+        <!-- المتجر -->
+        <section class="px-4 mb-10">
+            <h2 class="text-lg font-bold mb-4 text-white border-b border-gray-800 pb-2">شراء أجهزة تعدين 🛒</h2>
+            <div class="grid grid-cols-2 gap-4" id="shop-container"></div>
+        </section>
+    </div>
+
+    <!-- ================= صفحة المهام ================= -->
+    <div id="view-tasks" class="view-section hidden px-4 mb-10">
+        <div class="text-center mb-6 mt-2">
+            <h2 class="text-2xl font-bold text-white">مركز المهام 🎯</h2>
+            <p class="text-xs text-gray-400 mt-2">أكمل المهام التالية لربح بتكوين إضافي مجاناً</p>
+        </div>
+        
+        <!-- سيتم توليد المهام هنا عبر الجافاسكريبت -->
+        <div id="tasks-container" class="flex flex-col gap-3"></div>
+    </div>
+
+    <!-- ================= شريط التنقل السفلي ================= -->
+    <nav class="bottom-nav fixed bottom-0 w-full flex justify-around items-center p-3 z-50">
+        <div class="nav-item active" onclick="switchView('home', this)">
+            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            <span>التعدين</span>
+        </div>
+        <div class="nav-item" onclick="switchView('tasks', this)">
+            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+            <span>المهام</span>
+        </div>
     </nav>
 
-    <!-- لوحة التعدين (المستحق ) -->
-    <section class="px-4 mb-8">
-        <div class="btc-card p-5 text-center relative">
-            <h3 class="font-bold text-gray-400 text-sm">البتكوين المستحق</h3>
-            <p class="text-4xl font-bold mt-2 mb-4 text-white">
-                <span class="text-2xl text-btc">₿</span> <span id="pending-balance">0.000000</span>
-            </p>
-            
-            <!-- شريط سعة التخزين -->
-            <div class="mb-5 text-right">
-                <div class="flex justify-between text-[10px] font-bold mb-1">
-                    <span id="storage-text" class="text-gray-400">سعة التخزين: 1 ساعة</span>
-                    <span id="progress-text" class="text-btc">0%</span>
-                </div>
-                <div class="progress-bg">
-                    <div id="progress-fill" class="progress-fill"></div>
-                </div>
-                <p id="storage-warning" class="text-[10px] text-gray-500 mt-1 text-center">يستمر التعدين حتى يمتلئ الخزان</p>
-            </div>
-
-            <!-- الإحصائيات -->
-            <div class="grid grid-cols-3 gap-3 mb-5">
-                <div class="stat-box">
-                    <p class="text-[10px] text-gray-400 mb-1">في الساعة</p>
-                    <p class="text-sm font-bold text-white">₿ <span id="rate-hourly">0.00</span></p>
-                </div>
-                <div class="stat-box">
-                    <p class="text-[10px] text-gray-400 mb-1">في اليوم</p>
-                    <p class="text-sm font-bold text-white">₿ <span id="rate-daily">0.00</span></p>
-                </div>
-                <div class="stat-box">
-                    <p class="text-[10px] text-gray-400 mb-1">في الشهر</p>
-                    <p class="text-sm font-bold text-white">₿ <span id="rate-monthly">0.00</span></p>
-                </div>
-            </div>
-
-            <button id="btn-collect" class="btn-collect w-full font-bold py-3 rounded-xl text-lg shadow-lg">
-                جمع الأرباح
-            </button>
-        </div>
-    </section>
-
-    <!-- شبكة الأجهزة المملوكة -->
-    <section class="px-4 mb-8">
-        <h3 class="text-sm font-bold text-gray-300 mb-3 px-1">أجهزتك النشطة</h3>
-        <div class="grid grid-cols-3 gap-3 p-3 btc-card" id="miners-grid">
-            <!-- سيتم توليد الأجهزة هنا بواسطة الجافاسكريبت -->
-        </div>
-    </section>
-
-    <!-- المتجر -->
-    <section class="px-4 mb-10">
-        <h2 class="text-lg font-bold mb-4 text-white border-b border-gray-800 pb-2">شراء أجهزة تعدين 🛒</h2>
-        <div class="grid grid-cols-2 gap-4" id="shop-container">
-            <!-- سيتم توليد المتجر هنا بواسطة الجافاسكريبت -->
-        </div>
-    </section>
-
-    <!-- ربط ملف البرمجة -->
     <script src="script.js"></script>
 </body>
 </html>
