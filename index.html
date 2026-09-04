@@ -6,13 +6,12 @@
     <title>Bitcoin Pro Miner</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- تم إضافة مكتبة Supabase هنا للاتصال بقاعدة البيانات -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- الرأس: الرصيد الإجمالي (ثابت في كل الصفحات ) -->
+    <!-- الرأس: الرصيد الإجمالي -->
     <header class="p-4">
         <div class="btc-card p-4 flex justify-between items-center">
             <div>
@@ -27,9 +26,8 @@
         </div>
     </header>
 
-    <!-- ================= صفحة التعدين (الرئيسية) ================= -->
+    <!-- ================= صفحة التعدين (الرئيسية ) ================= -->
     <div id="view-home" class="view-section active">
-        <!-- الأزرار الأربعة السريعة -->
         <nav class="grid grid-cols-4 gap-3 px-4 mb-6">
             <button id="btn-daily-bonus" class="action-btn">
                 <span class="text-xl mb-1">🎁</span> مكافأة
@@ -40,12 +38,11 @@
             <button class="action-btn">
                 <span class="text-xl mb-1">📤</span> سحب
             </button>
-            <button class="action-btn">
+            <button class="action-btn" onclick="switchView('referrals', document.getElementById('nav-friends'))">
                 <span class="text-xl mb-1">👥</span> إحالات
             </button>
         </nav>
 
-        <!-- لوحة التعدين -->
         <section class="px-4 mb-8">
             <div class="btc-card p-5 text-center relative">
                 <h3 class="font-bold text-gray-400 text-sm">البتكوين المستحق</h3>
@@ -85,13 +82,11 @@
             </div>
         </section>
 
-        <!-- شبكة الأجهزة -->
         <section class="px-4 mb-8">
             <h3 class="text-sm font-bold text-gray-300 mb-3 px-1">أجهزتك النشطة</h3>
             <div class="grid grid-cols-3 gap-3 p-3 btc-card" id="miners-grid"></div>
         </section>
 
-        <!-- المتجر -->
         <section class="px-4 mb-10">
             <h2 class="text-lg font-bold mb-4 text-white border-b border-gray-800 pb-2">شراء أجهزة تعدين 🛒</h2>
             <div class="grid grid-cols-2 gap-4" id="shop-container"></div>
@@ -102,22 +97,56 @@
     <div id="view-tasks" class="view-section hidden px-4 mb-10">
         <div class="text-center mb-6 mt-2">
             <h2 class="text-2xl font-bold text-white">مركز المهام 🎯</h2>
-            <p class="text-xs text-gray-400 mt-2">أكمل المهام التالية لربح بتكوين إضافي مجاناً</p>
+            <p class="text-xs text-gray-400 mt-2">أكمل المهام لربح بتكوين إضافي</p>
+        </div>
+        <div id="tasks-container" class="flex flex-col gap-3"></div>
+    </div>
+
+    <!-- ================= صفحة الأصدقاء (الإحالات) ================= -->
+    <div id="view-referrals" class="view-section hidden px-4 mb-10">
+        <div class="text-center mb-6 mt-2">
+            <h2 class="text-2xl font-bold text-white">دعوة الأصدقاء 👥</h2>
+            <p class="text-xs text-gray-400 mt-2">احصل على ₿ 0.001 عن كل صديق تدعوه!</p>
         </div>
         
-        <!-- سيتم توليد المهام هنا عبر الجافاسكريبت -->
-        <div id="tasks-container" class="flex flex-col gap-3"></div>
+        <div class="btc-card p-5 text-center mb-6">
+            <h3 class="text-sm text-gray-400 font-bold mb-2">رابط الدعوة الخاص بك</h3>
+            <div class="bg-black/40 p-3 rounded-lg border border-gray-700 mb-4 overflow-hidden">
+                <p id="invite-link" class="text-xs text-btc font-bold truncate">جاري التحميل...</p>
+            </div>
+            <button onclick="copyInviteLink()" class="btn-collect w-full font-bold py-3 rounded-xl text-sm shadow-lg mb-2">
+                نسخ الرابط 📋
+            </button>
+            <button onclick="shareInviteLink()" class="bg-blue-600 text-white w-full font-bold py-3 rounded-xl text-sm shadow-lg">
+                مشاركة عبر تليجرام ✈️
+            </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div class="btc-card p-4 text-center">
+                <p class="text-xs text-gray-400 font-bold mb-1">الأصدقاء</p>
+                <p class="text-2xl font-bold text-white" id="ref-count">0</p>
+            </div>
+            <div class="btc-card p-4 text-center">
+                <p class="text-xs text-gray-400 font-bold mb-1">أرباح الدعوات</p>
+                <p class="text-xl font-bold text-btc">₿ <span id="ref-earnings">0.000</span></p>
+            </div>
+        </div>
     </div>
 
     <!-- ================= شريط التنقل السفلي ================= -->
     <nav class="bottom-nav fixed bottom-0 w-full flex justify-around items-center p-3 z-50">
-        <div class="nav-item active" onclick="switchView('home', this)">
+        <div class="nav-item active" id="nav-home" onclick="switchView('home', this)">
             <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
             <span>التعدين</span>
         </div>
-        <div class="nav-item" onclick="switchView('tasks', this)">
+        <div class="nav-item" id="nav-tasks" onclick="switchView('tasks', this)">
             <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
             <span>المهام</span>
+        </div>
+        <div class="nav-item" id="nav-friends" onclick="switchView('referrals', this)">
+            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            <span>الأصدقاء</span>
         </div>
     </nav>
 
