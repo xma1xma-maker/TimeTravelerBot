@@ -2,11 +2,11 @@
    1. إعدادات قاعدة البيانات (أسعار الأجهزة)
    ========================================== */
 const MINERS_DB = {
-    0: { id: 0, name: "Free Miner", cost: 0, monthly: 1, capacityHours: 1, img: "https://cdn-icons-png.flaticon.com/512/1198/1198367.png" },
-    1: { id: 1, name: "Antminer S9", cost: 8, monthly: 10, capacityHours: 5, img: "https://cdn-icons-png.flaticon.com/512/2910/2910008.png" },
-    2: { id: 2, name: "Antminer S19", cost: 20, monthly: 30, capacityHours: 5, img: "https://cdn-icons-png.flaticon.com/512/1440/1440693.png" },
-    3: { id: 3, name: "BTC Farm", cost: 50, monthly: 100, capacityHours: 5, img: "https://cdn-icons-png.flaticon.com/512/2094/2094308.png" },
-    4: { id: 4, name: "Whale ASIC", cost: 150, monthly: 500, capacityHours: 5, img: "https://cdn-icons-png.flaticon.com/512/3260/3260867.png" }
+    0: { id: 0, name: "Free Node", cost: 0, monthly: 1, capacityHours: 1, img: "images/miner0.png" },
+    1: { id: 1, name: "Node V1", cost: 8, monthly: 10, capacityHours: 5, img: "images/miner1.png" },
+    2: { id: 2, name: "Server Cluster", cost: 20, monthly: 30, capacityHours: 5, img: "images/miner2.png" },
+    3: { id: 3, name: "ASIC Pro", cost: 50, monthly: 100, capacityHours: 5, img: "images/miner3.png" },
+    4: { id: 4, name: "Whale Farm", cost: 150, monthly: 500, capacityHours: 5, img: "images/miner4.png" }
 };
 
 /* ==========================================
