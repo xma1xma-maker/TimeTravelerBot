@@ -1,17 +1,17 @@
 /* ==========================================
    1. إعدادات Supabase وتليجرام
    ========================================== */
-const SUPABASE_URL = 'https://tgpwdfegzdicypqfpjym.supabase.co';
-const SUPABASE_KEY = 'ضع_مفتاح_anon_public_هنا'; // 🔴 ضع مفتاحك هنا
-const BOT_USERNAME = 'اسم_البوت_الخاص_بك_بدون_@'; // 🔴 مثال: MyMinerBot
+const SUPABASE_URL = 'https://tgpwdfegzdicypqfpjym.supabase.co'; // 🔴 ضع رابط Supabase هنا
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRncHdkZmVnemRpY3lwcWZwanltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MjMzODMsImV4cCI6MjEwNDA5OTM4M30.wFodcxwYL4KbiR09__Esi6C8du0nB5R54oIio8gdvMk'; // 🔴 ضع مفتاح Supabase هنا
+const BOT_USERNAME = 'BitPMinerbot'; // ✅ تم إضافة يوزر بوتك هنا
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY );
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const tg = window.Telegram.WebApp;
 tg.expand();
 const tgUser = tg.initDataUnsafe?.user;
 const USER_ID = tgUser ? tgUser.id : 123456789; 
-const START_PARAM = tg.initDataUnsafe?.start_param; // الـ ID الخاص بالشخص الذي دعاه
+const START_PARAM = tg.initDataUnsafe?.start_param; 
 
 /* ==========================================
    2. إعدادات قاعدة البيانات
@@ -46,59 +46,56 @@ let maxCapacityBTC = 0;
    3. دوال الاتصال بقاعدة البيانات
    ========================================== */
 async function loadUserData() {
-    const { data, error } = await supabase.from('users').select('*').eq('id', USER_ID).single();
+    try {
+        const { data, error } = await db.from('users').select('*').eq('id', USER_ID).single();
 
-    if (data) {
-        player.balance = data.balance;
-        player.lastCollectTime = data.last_collect_time;
-        player.lastDailyBonus = data.last_daily_bonus;
-        player.miners = data.miners;
-        player.completedTasks = data.completed_tasks;
-        player.referralsCount = data.referrals_count || 0;
-        player.referralEarnings = data.referral_earnings || 0;
-    } else {
-        // مستخدم جديد!
-        player.lastCollectTime = Date.now();
-        
-        let inviterId = null;
-        // إذا دخل عن طريق رابط دعوة
-        if (START_PARAM && START_PARAM != USER_ID) {
-            inviterId = parseInt(START_PARAM);
-            // إعطاء المكافأة للشخص الذي دعاه
-            await rewardInviter(inviterId);
+        if (data) {
+            player.balance = data.balance;
+            player.lastCollectTime = data.last_collect_time;
+            player.lastDailyBonus = data.last_daily_bonus;
+            player.miners = data.miners;
+            player.completedTasks = data.completed_tasks;
+            player.referralsCount = data.referrals_count || 0;
+            player.referralEarnings = data.referral_earnings || 0;
+        } else {
+            player.lastCollectTime = Date.now();
+            let inviterId = null;
+            
+            if (START_PARAM && START_PARAM != USER_ID) {
+                inviterId = parseInt(START_PARAM);
+                await rewardInviter(inviterId);
+            }
+
+            await db.from('users').insert([{
+                id: USER_ID,
+                balance: player.balance,
+                miners: player.miners,
+                last_collect_time: player.lastCollectTime,
+                last_daily_bonus: player.lastDailyBonus,
+                completed_tasks: player.completedTasks,
+                referred_by: inviterId
+            }]);
         }
 
-        await supabase.from('users').insert([{
-            id: USER_ID,
-            balance: player.balance,
-            miners: player.miners,
-            last_collect_time: player.lastCollectTime,
-            last_daily_bonus: player.lastDailyBonus,
-            completed_tasks: player.completedTasks,
-            referred_by: inviterId
-        }]);
+        document.getElementById('invite-link').innerText = `https://t.me/${BOT_USERNAME}?start=${USER_ID}`;
+        document.getElementById('ref-count' ).innerText = player.referralsCount;
+        document.getElementById('ref-earnings').innerText = player.referralEarnings.toFixed(4);
+
+        calculateStats();
+        setInterval(gameLoop, 1000);
+        gameLoop();
+    } catch (err) {
+        console.error("خطأ في تحميل البيانات:", err);
+        alert("حدث خطأ في الاتصال بقاعدة البيانات. يرجى المحاولة لاحقاً.");
     }
-
-    // تحديث رابط الدعوة في الشاشة
-    document.getElementById('invite-link').innerText = `https://t.me/${BOT_USERNAME}?start=${USER_ID}`;
-    document.getElementById('ref-count' ).innerText = player.referralsCount;
-    document.getElementById('ref-earnings').innerText = player.referralEarnings.toFixed(4);
-
-    calculateStats();
-    setInterval(gameLoop, 1000);
-    gameLoop();
 }
 
-// دالة إعطاء المكافأة للداعي
 async function rewardInviter(inviterId) {
-    const rewardAmount = 0.001; // مكافأة الدعوة
-    
-    // جلب بيانات الداعي
-    const { data: inviter } = await supabase.from('users').select('balance, referrals_count, referral_earnings').eq('id', inviterId).single();
+    const rewardAmount = 0.001; 
+    const { data: inviter } = await db.from('users').select('balance, referrals_count, referral_earnings').eq('id', inviterId).single();
     
     if (inviter) {
-        // تحديث رصيد الداعي
-        await supabase.from('users').update({
+        await db.from('users').update({
             balance: inviter.balance + rewardAmount,
             referrals_count: (inviter.referrals_count || 0) + 1,
             referral_earnings: (inviter.referral_earnings || 0) + rewardAmount
@@ -107,7 +104,7 @@ async function rewardInviter(inviterId) {
 }
 
 async function saveUserData() {
-    await supabase.from('users').update({
+    await db.from('users').update({
         balance: player.balance,
         miners: player.miners,
         last_collect_time: player.lastCollectTime,
@@ -241,7 +238,6 @@ function switchView(viewId, navElement) {
     }
 }
 
-// نسخ رابط الدعوة
 function copyInviteLink() {
     const link = document.getElementById('invite-link').innerText;
     navigator.clipboard.writeText(link);
@@ -251,7 +247,6 @@ function copyInviteLink() {
     alert("تم نسخ الرابط بنجاح! 📋");
 }
 
-// مشاركة الرابط عبر تليجرام
 function shareInviteLink() {
     const link = document.getElementById('invite-link').innerText;
     const text = "انضم إلي في تعدين البتكوين واربح العملات مجاناً! 🚀💰";
