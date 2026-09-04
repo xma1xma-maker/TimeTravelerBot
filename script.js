@@ -14,20 +14,18 @@ const USER_ID = tgUser ? tgUser.id : 123456789;
 const START_PARAM = tg.initDataUnsafe?.start_param; 
 
 /* ==========================================
-   2. إعدادات قاعدة البيانات
+   2. إعدادات قاعدة البيانات (الصور تم تحديثها لروابط خارجية)
    ========================================== */
 const MINERS_DB = {
-    0: { id: 0, name: "Free Node", cost: 0, monthly: 1, capacityHours: 1, img: "images/miner0.png" },
-    1: { id: 1, name: "Node V1", cost: 8, monthly: 10, capacityHours: 5, img: "images/miner1.png" },
-    2: { id: 2, name: "Server Cluster", cost: 20, monthly: 30, capacityHours: 5, img: "images/miner2.png" },
-    3: { id: 3, name: "ASIC Pro", cost: 50, monthly: 100, capacityHours: 5, img: "images/miner3.png" },
-    4: { id: 4, name: "Whale Farm", cost: 150, monthly: 500, capacityHours: 5, img: "images/miner4.png" }
+    0: { id: 0, name: "Free Node", cost: 0, monthly: 1, capacityHours: 1, img: "https://cdn-icons-png.flaticon.com/512/1198/1198367.png" },
+    1: { id: 1, name: "Node V1", cost: 8, monthly: 10, capacityHours: 5, img: "https://cdn-icons-png.flaticon.com/512/2910/2910008.png" },
+    2: { id: 2, name: "Server Cluster", cost: 20, monthly: 30, capacityHours: 5, img: "https://cdn-icons-png.flaticon.com/512/1440/1440693.png" },
+    3: { id: 3, name: "ASIC Pro", cost: 50, monthly: 100, capacityHours: 5, img: "https://cdn-icons-png.flaticon.com/512/2094/2094308.png" },
+    4: { id: 4, name: "Whale Farm", cost: 150, monthly: 500, capacityHours: 5, img: "https://cdn-icons-png.flaticon.com/512/3260/3260867.png" }
 };
 
-const TASKS_DB = [
-    { id: 1, title: "انضم لقناتنا الرسمية", reward: 0.005, link: "https://t.me/yourchannel", icon: "📢" },
-    { id: 2, title: "تابعنا على تويتر (X )", reward: 0.002, link: "https://twitter.com/youraccount", icon: "🐦" }
-];
+// سيتم جلب المهام من Supabase بدلاً من كتابتها هنا
+let TASKS_DB = [];
 
 let player = {
     balance: 0,
@@ -47,6 +45,13 @@ let maxCapacityBTC = 0;
    ========================================== */
 async function loadUserData() {
     try {
+        // 🟢 جلب المهام من Supabase أولاً
+        const { data: tasksData } = await db.from('tasks').select('*');
+        if (tasksData) {
+            TASKS_DB = tasksData;
+        }
+
+        // 🟢 جلب بيانات المستخدم
         const { data, error } = await db.from('users').select('*').eq('id', USER_ID).single();
 
         if (data) {
@@ -54,7 +59,7 @@ async function loadUserData() {
             player.lastCollectTime = data.last_collect_time;
             player.lastDailyBonus = data.last_daily_bonus;
             player.miners = data.miners;
-            player.completedTasks = data.completed_tasks;
+            player.completedTasks = data.completed_tasks || [];
             player.referralsCount = data.referrals_count || 0;
             player.referralEarnings = data.referral_earnings || 0;
         } else {
@@ -86,7 +91,6 @@ async function loadUserData() {
         gameLoop();
     } catch (err) {
         console.error("خطأ في تحميل البيانات:", err);
-        alert("حدث خطأ في الاتصال بقاعدة البيانات. يرجى المحاولة لاحقاً.");
     }
 }
 
@@ -269,12 +273,14 @@ function startTask(taskId, link) {
     
     setTimeout(() => {
         const task = TASKS_DB.find(t => t.id === taskId);
-        player.balance += task.reward;
-        player.completedTasks.push(taskId);
-        saveUserData();
-        gameLoop();
-        renderTasks();
-        alert(`تم التحقق! حصلت على ₿ ${task.reward}`);
+        if(task) {
+            player.balance += task.reward;
+            player.completedTasks.push(taskId);
+            saveUserData();
+            gameLoop();
+            renderTasks();
+            alert(`تم التحقق! حصلت على ₿ ${task.reward}`);
+        }
     }, 3000);
 }
 
