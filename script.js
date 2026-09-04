@@ -14,14 +14,16 @@ const MINERS_DB = {
    ========================================== */
 let player = {
     balance: 0,
-    lastCollectTime: Date.now( ),
-    miners: [0] // يبدأ بالجهاز المجاني
+    lastCollectTime: Date.now(),
+    lastDailyBonus: 0, // وقت آخر مكافأة يومية أخذها
+    miners: [0]
 };
 
-// استرجاع البيانات المحفوظة
+// استرجاع البيانات المحفوظة ودمجها لضمان عدم ضياع البيانات القديمة
 const savedData = localStorage.getItem('btc_miner_pro');
 if (savedData) {
-    player = JSON.parse(savedData);
+    const parsedData = JSON.parse(savedData);
+    player = { ...player, ...parsedData };
 }
 
 let totalHourlyRate = 0;
@@ -156,7 +158,11 @@ function gameLoop() {
     }
 }
 
-// ربط زر الجمع
+/* ==========================================
+   5. الأزرار والتفاعلات
+   ========================================== */
+
+// زر جمع الأرباح (مع التقييد)
 document.getElementById('btn-collect').addEventListener('click', () => {
     const now = Date.now();
     const elapsedHours = (now - player.lastCollectTime) / (1000 * 60 * 60);
@@ -164,10 +170,9 @@ document.getElementById('btn-collect').addEventListener('click', () => {
     
     if (pending >= maxCapacityBTC) pending = maxCapacityBTC;
 
-    // 🟢 الحد الأدنى للجمع (مثلاً 0.0001 بتكوين)
+    // الحد الأدنى للجمع (يمكنك تغييره من هنا)
     const MIN_COLLECT = 0.0001; 
 
-    // إذا كان الرصيد المستحق أكبر من الحد الأدنى، أو إذا كان الخزان ممتلئاً
     if (pending >= MIN_COLLECT || pending >= maxCapacityBTC) {
         player.balance += pending;
         player.lastCollectTime = now;
@@ -177,11 +182,33 @@ document.getElementById('btn-collect').addEventListener('click', () => {
         if (window.Telegram && window.Telegram.WebApp.HapticFeedback) {
             window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
         }
-        // رسالة نجاح (اختيارية)
-        // alert("تم جمع الأرباح بنجاح! 💰");
     } else {
-        // رسالة تنبيه إذا لم يصل للحد الأدنى
-        alert(`عذراً! الحد الأدنى للجمع هو ${MIN_COLLECT} ₿. يرجى الانتظار حتى يكتمل المبلغ.`);
+        alert(`عذراً! الحد الأدنى للجمع هو ${MIN_COLLECT} ₿. يرجى الانتظار.`);
+    }
+});
+
+// زر المكافأة اليومية
+document.getElementById('btn-daily-bonus').addEventListener('click', () => {
+    const now = Date.now();
+    const cooldown = 24 * 60 * 60 * 1000; // 24 ساعة بالملي ثانية
+    const timeSinceLastBonus = now - player.lastDailyBonus;
+
+    if (timeSinceLastBonus >= cooldown) {
+        const bonusAmount = 0.0005; // قيمة المكافأة اليومية
+        player.balance += bonusAmount;
+        player.lastDailyBonus = now;
+        localStorage.setItem('btc_miner_pro', JSON.stringify(player));
+        gameLoop();
+        
+        if (window.Telegram && window.Telegram.WebApp.HapticFeedback) {
+            window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        }
+        alert(`مبروك! لقد حصلت على مكافأة يومية بقيمة ₿ ${bonusAmount}`);
+    } else {
+        const timeLeft = cooldown - timeSinceLastBonus;
+        const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
+        const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        alert(`لقد حصلت على مكافأتك مسبقاً. عد بعد ${hoursLeft} ساعة و ${minutesLeft} دقيقة.`);
     }
 });
 
@@ -192,8 +219,15 @@ function buyMiner(minerId) {
         player.balance -= miner.cost;
         player.miners.push(minerId);
         
-        // جمع الأرباح المعلقة قبل الشراء
-        document.getElementById('btn-collect').click(); 
+        // جمع الأرباح المعلقة قبل الشراء (إذا تجاوزت الحد الأدنى)
+        const now = Date.now();
+        const elapsedHours = (now - player.lastCollectTime) / (1000 * 60 * 60);
+        let pending = elapsedHours * totalHourlyRate;
+        if (pending >= maxCapacityBTC) pending = maxCapacityBTC;
+        if (pending > 0) {
+            player.balance += pending;
+            player.lastCollectTime = now;
+        }
         
         calculateStats();
         localStorage.setItem('btc_miner_pro', JSON.stringify(player));
