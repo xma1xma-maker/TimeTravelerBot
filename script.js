@@ -17,7 +17,7 @@ const START_PARAM = tg.initDataUnsafe?.start_param;
    2. إعدادات قاعدة البيانات (الصور تم تحديثها لروابط خارجية)
    ========================================== */
 const MINERS_DB = {
-    0: { id: 0, name: "Free Node", cost: 0, monthly: 1, capacityHours: 1, img: "https://cdn-icons-png.flaticon.com/512/1198/1198367.png" },
+    0: { id: 0, name: "Free Node", cost: 0, monthly: 1, capacityHours: 1, img: "https://tgpwdfegzdicypqfpjym.supabase.co/storage/v1/object/public/tofe/miner0.png" },
     1: { id: 1, name: "Node V1", cost: 8, monthly: 10, capacityHours: 5, img: "https://cdn-icons-png.flaticon.com/512/2910/2910008.png" },
     2: { id: 2, name: "Server Cluster", cost: 20, monthly: 30, capacityHours: 5, img: "https://cdn-icons-png.flaticon.com/512/1440/1440693.png" },
     3: { id: 3, name: "ASIC Pro", cost: 50, monthly: 100, capacityHours: 5, img: "https://cdn-icons-png.flaticon.com/512/2094/2094308.png" },
