@@ -1,21 +1,20 @@
 /* ==========================================
    1. إعدادات Supabase وتليجرام
    ========================================== */
-// 🔴 ضع الرابط والمفتاح الخاصين بك هنا 🔴
 const SUPABASE_URL = 'https://tgpwdfegzdicypqfpjym.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRncHdkZmVnemRpY3lwcWZwanltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MjMzODMsImV4cCI6MjEwNDA5OTM4M30.wFodcxwYL4KbiR09__Esi6C8du0nB5R54oIio8gdvMk';
+const SUPABASE_KEY = 'ضع_مفتاح_anon_public_هنا'; // 🔴 ضع مفتاحك هنا
+const BOT_USERNAME = 'اسم_البوت_الخاص_بك_بدون_@'; // 🔴 مثال: MyMinerBot
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY );
 
-// جلب بيانات المستخدم من تليجرام
 const tg = window.Telegram.WebApp;
-tg.expand(); // تكبير الشاشة
+tg.expand();
 const tgUser = tg.initDataUnsafe?.user;
-// إذا فتح من المتصفح للتجربة نعطيه ID وهمي، وإذا من تليجرام نأخذ الـ ID الحقيقي
 const USER_ID = tgUser ? tgUser.id : 123456789; 
+const START_PARAM = tg.initDataUnsafe?.start_param; // الـ ID الخاص بالشخص الذي دعاه
 
 /* ==========================================
-   2. إعدادات قاعدة البيانات (الأجهزة والمهام)
+   2. إعدادات قاعدة البيانات
    ========================================== */
 const MINERS_DB = {
     0: { id: 0, name: "Free Node", cost: 0, monthly: 1, capacityHours: 1, img: "images/miner0.png" },
@@ -27,77 +26,98 @@ const MINERS_DB = {
 
 const TASKS_DB = [
     { id: 1, title: "انضم لقناتنا الرسمية", reward: 0.005, link: "https://t.me/yourchannel", icon: "📢" },
-    { id: 2, title: "تابعنا على تويتر (X )", reward: 0.002, link: "https://twitter.com/youraccount", icon: "🐦" },
-    { id: 3, title: "انضم لمجموعة النقاش", reward: 0.003, link: "https://t.me/yourgroup", icon: "💬" }
+    { id: 2, title: "تابعنا على تويتر (X )", reward: 0.002, link: "https://twitter.com/youraccount", icon: "🐦" }
 ];
 
-/* ==========================================
-   3. بيانات اللاعب (الافتراضية )
-   ========================================== */
 let player = {
     balance: 0,
-    lastCollectTime: Date.now(),
+    lastCollectTime: Date.now( ),
     lastDailyBonus: 0,
     miners: [0],
-    completedTasks: []
+    completedTasks: [],
+    referralsCount: 0,
+    referralEarnings: 0
 };
 
 let totalHourlyRate = 0;
 let maxCapacityBTC = 0;
 
 /* ==========================================
-   4. دوال الاتصال بقاعدة البيانات (Supabase)
+   3. دوال الاتصال بقاعدة البيانات
    ========================================== */
 async function loadUserData() {
-    // محاولة جلب بيانات المستخدم من السيرفر
-    const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', USER_ID)
-        .single();
+    const { data, error } = await supabase.from('users').select('*').eq('id', USER_ID).single();
 
     if (data) {
-        // المستخدم موجود، نحمل بياناته
         player.balance = data.balance;
         player.lastCollectTime = data.last_collect_time;
         player.lastDailyBonus = data.last_daily_bonus;
         player.miners = data.miners;
         player.completedTasks = data.completed_tasks;
+        player.referralsCount = data.referrals_count || 0;
+        player.referralEarnings = data.referral_earnings || 0;
     } else {
-        // مستخدم جديد، ننشئ له حساب في السيرفر
+        // مستخدم جديد!
         player.lastCollectTime = Date.now();
+        
+        let inviterId = null;
+        // إذا دخل عن طريق رابط دعوة
+        if (START_PARAM && START_PARAM != USER_ID) {
+            inviterId = parseInt(START_PARAM);
+            // إعطاء المكافأة للشخص الذي دعاه
+            await rewardInviter(inviterId);
+        }
+
         await supabase.from('users').insert([{
             id: USER_ID,
             balance: player.balance,
             miners: player.miners,
             last_collect_time: player.lastCollectTime,
             last_daily_bonus: player.lastDailyBonus,
-            completed_tasks: player.completedTasks
+            completed_tasks: player.completedTasks,
+            referred_by: inviterId
         }]);
     }
 
-    // بعد تحميل البيانات، نحسب الإحصائيات ونشغل اللعبة
+    // تحديث رابط الدعوة في الشاشة
+    document.getElementById('invite-link').innerText = `https://t.me/${BOT_USERNAME}?start=${USER_ID}`;
+    document.getElementById('ref-count' ).innerText = player.referralsCount;
+    document.getElementById('ref-earnings').innerText = player.referralEarnings.toFixed(4);
+
     calculateStats();
     setInterval(gameLoop, 1000);
     gameLoop();
 }
 
+// دالة إعطاء المكافأة للداعي
+async function rewardInviter(inviterId) {
+    const rewardAmount = 0.001; // مكافأة الدعوة
+    
+    // جلب بيانات الداعي
+    const { data: inviter } = await supabase.from('users').select('balance, referrals_count, referral_earnings').eq('id', inviterId).single();
+    
+    if (inviter) {
+        // تحديث رصيد الداعي
+        await supabase.from('users').update({
+            balance: inviter.balance + rewardAmount,
+            referrals_count: (inviter.referrals_count || 0) + 1,
+            referral_earnings: (inviter.referral_earnings || 0) + rewardAmount
+        }).eq('id', inviterId);
+    }
+}
+
 async function saveUserData() {
-    // حفظ البيانات في السيرفر في الخلفية
-    await supabase
-        .from('users')
-        .update({
-            balance: player.balance,
-            miners: player.miners,
-            last_collect_time: player.lastCollectTime,
-            last_daily_bonus: player.lastDailyBonus,
-            completed_tasks: player.completedTasks
-        })
-        .eq('id', USER_ID);
+    await supabase.from('users').update({
+        balance: player.balance,
+        miners: player.miners,
+        last_collect_time: player.lastCollectTime,
+        last_daily_bonus: player.lastDailyBonus,
+        completed_tasks: player.completedTasks
+    }).eq('id', USER_ID);
 }
 
 /* ==========================================
-   5. دوال الواجهة (تحديث الشاشة)
+   4. دوال الواجهة (تحديث الشاشة)
    ========================================== */
 function renderGrid() {
     const grid = document.getElementById('miners-grid');
@@ -166,9 +186,6 @@ function renderTasks() {
     });
 }
 
-/* ==========================================
-   6. المنطق البرمجي (الحسابات)
-   ========================================== */
 function calculateStats() {
     totalHourlyRate = 0;
     maxCapacityBTC = 0;
@@ -210,23 +227,47 @@ function gameLoop() {
 }
 
 /* ==========================================
-   7. التفاعلات (المهام، التنقل، الشراء)
+   5. التفاعلات (الإحالات، المهام، الشراء)
    ========================================== */
 function switchView(viewId, navElement) {
     document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active', 'hidden'));
     document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
     document.getElementById(`view-${viewId}`).classList.remove('hidden');
     document.getElementById(`view-${viewId}`).classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-    navElement.classList.add('active');
+    
+    if(navElement) {
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        navElement.classList.add('active');
+    }
+}
+
+// نسخ رابط الدعوة
+function copyInviteLink() {
+    const link = document.getElementById('invite-link').innerText;
+    navigator.clipboard.writeText(link);
+    if (window.Telegram && window.Telegram.WebApp.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+    }
+    alert("تم نسخ الرابط بنجاح! 📋");
+}
+
+// مشاركة الرابط عبر تليجرام
+function shareInviteLink() {
+    const link = document.getElementById('invite-link').innerText;
+    const text = "انضم إلي في تعدين البتكوين واربح العملات مجاناً! 🚀💰";
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link )}&text=${encodeURIComponent(text)}`;
+    
+    if (window.Telegram && window.Telegram.WebApp) {
+        window.Telegram.WebApp.openTelegramLink(shareUrl);
+    } else {
+        window.open(shareUrl, '_blank');
+    }
 }
 
 function startTask(taskId, link) {
-    if (window.Telegram && window.Telegram.WebApp) {
-        window.Telegram.WebApp.openLink(link);
-    } else {
-        window.open(link, '_blank');
-    }
+    if (window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.openLink(link);
+    else window.open(link, '_blank');
+    
     const btn = document.getElementById(`btn-task-${taskId}`);
     btn.innerText = "تحقق...";
     btn.style.backgroundColor = "#facc15";
@@ -235,12 +276,9 @@ function startTask(taskId, link) {
         const task = TASKS_DB.find(t => t.id === taskId);
         player.balance += task.reward;
         player.completedTasks.push(taskId);
-        saveUserData(); // حفظ في السيرفر
+        saveUserData();
         gameLoop();
         renderTasks();
-        if (window.Telegram && window.Telegram.WebApp.HapticFeedback) {
-            window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-        }
         alert(`تم التحقق! حصلت على ₿ ${task.reward}`);
     }, 3000);
 }
@@ -255,7 +293,7 @@ document.getElementById('btn-collect').addEventListener('click', () => {
     if (pending >= MIN_COLLECT || pending >= maxCapacityBTC) {
         player.balance += pending;
         player.lastCollectTime = now;
-        saveUserData(); // حفظ في السيرفر
+        saveUserData();
         gameLoop();
     } else {
         alert(`عذراً! الحد الأدنى للجمع هو ${MIN_COLLECT} ₿.`);
@@ -270,7 +308,7 @@ document.getElementById('btn-daily-bonus').addEventListener('click', () => {
     if (timeSinceLastBonus >= cooldown) {
         player.balance += 0.0005;
         player.lastDailyBonus = now;
-        saveUserData(); // حفظ في السيرفر
+        saveUserData();
         gameLoop();
         alert(`مبروك! حصلت على مكافأة يومية ₿ 0.0005`);
     } else {
@@ -288,11 +326,11 @@ function buyMiner(minerId) {
         player.miners.push(minerId);
         document.getElementById('btn-collect').click(); 
         calculateStats();
-        saveUserData(); // حفظ في السيرفر
+        saveUserData();
     } else {
         alert(`رصيدك غير كافٍ! تحتاج إلى ₿ ${miner.cost}`);
     }
 }
 
-// 🚀 تشغيل التطبيق (يبدأ بجلب البيانات من السيرفر أولاً)
+// 🚀 تشغيل التطبيق
 loadUserData();
