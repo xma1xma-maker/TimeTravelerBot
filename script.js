@@ -1,9 +1,9 @@
 /* ==========================================
    1. إعدادات Supabase وتليجرام
    ========================================== */
-const SUPABASE_URL = 'https://tgpwdfegzdicypqfpjym.supabase.co'; // 🔴 رابط Supabase
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRncHdkZmVnemRpY3lwcWZwanltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MjMzODMsImV4cCI6MjEwNDA5OTM4M30.wFodcxwYL4KbiR09__Esi6C8du0nB5R54oIio8gdvMk'; // 🔴 مفتاح Supabase
-const BOT_USERNAME = 'BitPMinerbot'; // ✅ يوزر بوتك
+const SUPABASE_URL = 'https://tgpwdfegzdicypqfpjym.supabase.co'; 
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRncHdkZmVnemRpY3lwcWZwanltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MjMzODMsImV4cCI6MjEwNDA5OTM4M30.wFodcxwYL4KbiR09__Esi6C8du0nB5R54oIio8gdvMk'; 
+const BOT_USERNAME = 'BitPMinerbot'; 
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY );
 
@@ -41,7 +41,18 @@ let totalHourlyRate = 0;
 let maxCapacityBTC = 0;
 
 /* ==========================================
-   3. دوال الاتصال بقاعدة البيانات
+   3. التحميل المسبق للصور (لحل مشكلة التأخير)
+   ========================================== */
+function preloadImages() {
+    Object.values(MINERS_DB).forEach(miner => {
+        const img = new Image();
+        img.src = miner.img;
+    });
+}
+preloadImages(); // تشغيل التحميل المسبق لصور الأجهزة فوراً
+
+/* ==========================================
+   4. دوال الاتصال بقاعدة البيانات
    ========================================== */
 async function loadUserData() {
     try {
@@ -49,6 +60,13 @@ async function loadUserData() {
         const { data: tasksData } = await db.from('tasks').select('*');
         if (tasksData) {
             TASKS_DB = tasksData;
+            // تحميل صور المهام مسبقاً
+            TASKS_DB.forEach(task => {
+                if (task.icon && (task.icon.startsWith('http' ) || task.icon.startsWith('images/'))) {
+                    const img = new Image();
+                    img.src = task.icon;
+                }
+            });
         }
 
         // 🟢 جلب بيانات المستخدم
@@ -118,7 +136,7 @@ async function saveUserData() {
 }
 
 /* ==========================================
-   4. دوال الواجهة (تحديث الشاشة)
+   5. دوال الواجهة (تحديث الشاشة)
    ========================================== */
 function renderGrid() {
     const grid = document.getElementById('miners-grid');
@@ -164,14 +182,12 @@ function renderShop() {
     }
 }
 
-// 🟢 تم تحديث هذه الدالة لتدعم روابط الصور للمهام
 function renderTasks() {
     const container = document.getElementById('tasks-container');
     container.innerHTML = '';
     TASKS_DB.forEach(task => {
         const isCompleted = player.completedTasks.includes(task.id);
         
-        // التحقق: هل الأيقونة رابط صورة أم ملصق عادي؟
         let iconHtml = '';
         if (task.icon && (task.icon.startsWith('http' ) || task.icon.startsWith('images/'))) {
             iconHtml = `<img src="${task.icon}" class="w-8 h-8 object-contain drop-shadow-md">`;
@@ -240,7 +256,7 @@ function gameLoop() {
 }
 
 /* ==========================================
-   5. التفاعلات (الإحالات، المهام، الشراء)
+   6. التفاعلات (الإحالات، المهام، الشراء)
    ========================================== */
 function switchView(viewId, navElement) {
     document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active', 'hidden'));
