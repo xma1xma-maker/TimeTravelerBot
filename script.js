@@ -1,11 +1,11 @@
 /* ==========================================
    1. إعدادات Supabase وتليجرام
    ========================================== */
-const SUPABASE_URL = 'https://tgpwdfegzdicypqfpjym.supabase.co'; // 🔴 ضع رابط Supabase هنا
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRncHdkZmVnemRpY3lwcWZwanltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MjMzODMsImV4cCI6MjEwNDA5OTM4M30.wFodcxwYL4KbiR09__Esi6C8du0nB5R54oIio8gdvMk'; // 🔴 ضع مفتاح Supabase هنا
-const BOT_USERNAME = 'BitPMinerbot'; // ✅ تم إضافة يوزر بوتك هنا
+const SUPABASE_URL = 'https://tgpwdfegzdicypqfpjym.supabase.co'; // 🔴 رابط Supabase
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRncHdkZmVnemRpY3lwcWZwanltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MjMzODMsImV4cCI6MjEwNDA5OTM4M30.wFodcxwYL4KbiR09__Esi6C8du0nB5R54oIio8gdvMk'; // 🔴 مفتاح Supabase
+const BOT_USERNAME = 'BitPMinerbot'; // ✅ يوزر بوتك
 
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY );
 
 const tg = window.Telegram.WebApp;
 tg.expand();
@@ -164,15 +164,27 @@ function renderShop() {
     }
 }
 
+// 🟢 تم تحديث هذه الدالة لتدعم روابط الصور للمهام
 function renderTasks() {
     const container = document.getElementById('tasks-container');
     container.innerHTML = '';
     TASKS_DB.forEach(task => {
         const isCompleted = player.completedTasks.includes(task.id);
+        
+        // التحقق: هل الأيقونة رابط صورة أم ملصق عادي؟
+        let iconHtml = '';
+        if (task.icon && (task.icon.startsWith('http' ) || task.icon.startsWith('images/'))) {
+            iconHtml = `<img src="${task.icon}" class="w-8 h-8 object-contain drop-shadow-md">`;
+        } else {
+            iconHtml = task.icon || '🎯';
+        }
+
         container.innerHTML += `
             <div class="task-card">
                 <div class="flex items-center gap-3">
-                    <div class="text-2xl bg-black/30 p-2 rounded-xl border border-gray-700">${task.icon}</div>
+                    <div class="w-12 h-12 bg-black/30 rounded-xl border border-gray-700 flex items-center justify-center text-2xl">
+                        ${iconHtml}
+                    </div>
                     <div>
                         <h4 class="font-bold text-sm text-white">${task.title}</h4>
                         <p class="text-xs text-btc font-bold mt-1">+ ₿ ${task.reward}</p>
