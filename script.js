@@ -11,10 +11,11 @@ const tg = window.Telegram.WebApp;
 tg.expand();
 const tgUser = tg.initDataUnsafe?.user;
 const USER_ID = tgUser ? tgUser.id : 123456789; 
+const USER_NAME = tgUser ? tgUser.first_name : 'المعدن'; // 🟢 جلب اسم المستخدم
 const START_PARAM = tg.initDataUnsafe?.start_param; 
 
 /* ==========================================
-   2. إعدادات قاعدة البيانات (الصور تم تحديثها لروابط خارجية)
+   2. إعدادات قاعدة البيانات
    ========================================== */
 const MINERS_DB = {
     0: { id: 0, name: "Free Node", cost: 0, monthly: 1, capacityHours: 1, img: "https://tgpwdfegzdicypqfpjym.supabase.co/storage/v1/object/public/tofe/miner0.png" },
@@ -24,7 +25,6 @@ const MINERS_DB = {
     4: { id: 4, name: "Whale Farm", cost: 150, monthly: 500, capacityHours: 5, img: "https://tgpwdfegzdicypqfpjym.supabase.co/storage/v1/object/public/tofe/miner4.png" }
 };
 
-// سيتم جلب المهام من Supabase بدلاً من كتابتها هنا
 let TASKS_DB = [];
 
 let player = {
@@ -41,7 +41,7 @@ let totalHourlyRate = 0;
 let maxCapacityBTC = 0;
 
 /* ==========================================
-   3. التحميل المسبق للصور (لحل مشكلة التأخير)
+   3. التحميل المسبق للصور
    ========================================== */
 function preloadImages() {
     Object.values(MINERS_DB).forEach(miner => {
@@ -49,18 +49,20 @@ function preloadImages() {
         img.src = miner.img;
     });
 }
-preloadImages(); // تشغيل التحميل المسبق لصور الأجهزة فوراً
+preloadImages(); 
 
 /* ==========================================
    4. دوال الاتصال بقاعدة البيانات
    ========================================== */
 async function loadUserData() {
     try {
-        // 🟢 جلب المهام من Supabase أولاً
+        // 🟢 تغيير الاسم في الواجهة مباشرة
+        const nameBadge = document.querySelector('.user-badge');
+        if(nameBadge) nameBadge.innerText = USER_NAME + ' 👨‍💻';
+
         const { data: tasksData } = await db.from('tasks').select('*');
         if (tasksData) {
             TASKS_DB = tasksData;
-            // تحميل صور المهام مسبقاً
             TASKS_DB.forEach(task => {
                 if (task.icon && (task.icon.startsWith('http' ) || task.icon.startsWith('images/'))) {
                     const img = new Image();
@@ -69,7 +71,6 @@ async function loadUserData() {
             });
         }
 
-        // 🟢 جلب بيانات المستخدم
         const { data, error } = await db.from('users').select('*').eq('id', USER_ID).single();
 
         if (data) {
@@ -80,6 +81,9 @@ async function loadUserData() {
             player.completedTasks = data.completed_tasks || [];
             player.referralsCount = data.referrals_count || 0;
             player.referralEarnings = data.referral_earnings || 0;
+            
+            // تحديث الاسم في قاعدة البيانات في حال قام المستخدم بتغييره في تليجرام
+            saveUserData(); 
         } else {
             player.lastCollectTime = Date.now();
             let inviterId = null;
@@ -91,6 +95,7 @@ async function loadUserData() {
 
             await db.from('users').insert([{
                 id: USER_ID,
+                first_name: USER_NAME, // 🟢 حفظ الاسم في قاعدة البيانات
                 balance: player.balance,
                 miners: player.miners,
                 last_collect_time: player.lastCollectTime,
@@ -113,7 +118,7 @@ async function loadUserData() {
 }
 
 async function rewardInviter(inviterId) {
-    const rewardAmount = 0.1; // 🟢 تم تعديل المكافأة هنا لتصبح 0.1
+    const rewardAmount = 0.1; 
     const { data: inviter } = await db.from('users').select('balance, referrals_count, referral_earnings').eq('id', inviterId).single();
     
     if (inviter) {
@@ -127,6 +132,7 @@ async function rewardInviter(inviterId) {
 
 async function saveUserData() {
     await db.from('users').update({
+        first_name: USER_NAME, // 🟢 تحديث الاسم دائماً
         balance: player.balance,
         miners: player.miners,
         last_collect_time: player.lastCollectTime,
