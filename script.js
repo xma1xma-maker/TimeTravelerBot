@@ -2,7 +2,7 @@
    1. إعدادات Supabase وتليجرام
    ========================================== */
 // 🔴 ضع الرابط والمفتاح الخاصين بك هنا 🔴
-const SUPABASE_URL = 'https://tgpwdfegzdicypqfpjym.supabase.co/rest/v1/';
+const SUPABASE_URL = 'https://tgpwdfegzdicypqfpjym.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRncHdkZmVnemRpY3lwcWZwanltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MjMzODMsImV4cCI6MjEwNDA5OTM4M30.wFodcxwYL4KbiR09__Esi6C8du0nB5R54oIio8gdvMk';
 
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
