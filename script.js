@@ -105,7 +105,7 @@ async function loadUserData() {
             }]);
         }
 
-        document.getElementById('invite-link').innerText = `https://t.me/${BOT_USERNAME}?start=${USER_ID}`;
+        document.getElementById('invite-link' ).innerText = `https://t.me/${BOT_USERNAME}/app?startapp=${USER_ID}`;
         document.getElementById('ref-count' ).innerText = player.referralsCount;
         document.getElementById('ref-earnings').innerText = player.referralEarnings.toFixed(4);
 
