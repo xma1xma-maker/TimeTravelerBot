@@ -164,7 +164,11 @@ document.getElementById('btn-collect').addEventListener('click', () => {
     
     if (pending >= maxCapacityBTC) pending = maxCapacityBTC;
 
-    if (pending > 0.000001) {
+    // 🟢 الحد الأدنى للجمع (مثلاً 0.0001 بتكوين)
+    const MIN_COLLECT = 0.0001; 
+
+    // إذا كان الرصيد المستحق أكبر من الحد الأدنى، أو إذا كان الخزان ممتلئاً
+    if (pending >= MIN_COLLECT || pending >= maxCapacityBTC) {
         player.balance += pending;
         player.lastCollectTime = now;
         localStorage.setItem('btc_miner_pro', JSON.stringify(player));
@@ -173,6 +177,11 @@ document.getElementById('btn-collect').addEventListener('click', () => {
         if (window.Telegram && window.Telegram.WebApp.HapticFeedback) {
             window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
         }
+        // رسالة نجاح (اختيارية)
+        // alert("تم جمع الأرباح بنجاح! 💰");
+    } else {
+        // رسالة تنبيه إذا لم يصل للحد الأدنى
+        alert(`عذراً! الحد الأدنى للجمع هو ${MIN_COLLECT} ₿. يرجى الانتظار حتى يكتمل المبلغ.`);
     }
 });
 
