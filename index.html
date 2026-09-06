@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bitcoin Pro Miner</title>
+    <title>Miner Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -17,7 +17,7 @@
             <div>
                 <p class="text-xs text-gray-400 font-bold mb-1">الرصيد الإجمالي</p>
                 <p class="text-2xl font-bold text-btc">
-                    ₿ <span id="main-balance">0.0000</span>
+                    $ <span id="main-balance">0.00</span>
                 </p>
             </div>
             <div class="user-badge">
@@ -32,10 +32,10 @@
             <button id="btn-daily-bonus" class="action-btn">
                 <span class="text-xl mb-1">🎁</span> مكافأة
             </button>
-            <button class="action-btn">
+            <button onclick="openDepositModal()" class="action-btn">
                 <span class="text-xl mb-1">📥</span> إيداع
             </button>
-            <button class="action-btn">
+            <button onclick="openWithdrawModal()" class="action-btn">
                 <span class="text-xl mb-1">📤</span> سحب
             </button>
             <button class="action-btn" onclick="switchView('referrals', document.getElementById('nav-friends'))">
@@ -45,9 +45,9 @@
 
         <section class="px-4 mb-8">
             <div class="btc-card p-5 text-center relative">
-                <h3 class="font-bold text-gray-400 text-sm">البتكوين المستحق</h3>
+                <h3 class="font-bold text-gray-400 text-sm">الرصيد المستحق</h3>
                 <p class="text-4xl font-bold mt-2 mb-4 text-white">
-                    <span class="text-2xl text-btc">₿</span> <span id="pending-balance">0.000000</span>
+                    <span class="text-2xl text-btc">$</span> <span id="pending-balance">0.0000</span>
                 </p>
                 
                 <div class="mb-5 text-right">
@@ -64,15 +64,15 @@
                 <div class="grid grid-cols-3 gap-3 mb-5">
                     <div class="stat-box">
                         <p class="text-[10px] text-gray-400 mb-1">في الساعة</p>
-                        <p class="text-sm font-bold text-white">₿ <span id="rate-hourly">0.00</span></p>
+                        <p class="text-sm font-bold text-white">$ <span id="rate-hourly">0.00</span></p>
                     </div>
                     <div class="stat-box">
                         <p class="text-[10px] text-gray-400 mb-1">في اليوم</p>
-                        <p class="text-sm font-bold text-white">₿ <span id="rate-daily">0.00</span></p>
+                        <p class="text-sm font-bold text-white">$ <span id="rate-daily">0.00</span></p>
                     </div>
                     <div class="stat-box">
                         <p class="text-[10px] text-gray-400 mb-1">في الشهر</p>
-                        <p class="text-sm font-bold text-white">₿ <span id="rate-monthly">0.00</span></p>
+                        <p class="text-sm font-bold text-white">$ <span id="rate-monthly">0.00</span></p>
                     </div>
                 </div>
 
@@ -97,7 +97,7 @@
     <div id="view-tasks" class="view-section hidden px-4 mb-10">
         <div class="text-center mb-6 mt-2">
             <h2 class="text-2xl font-bold text-white">مركز المهام 🎯</h2>
-            <p class="text-xs text-gray-400 mt-2">أكمل المهام لربح بتكوين إضافي</p>
+            <p class="text-xs text-gray-400 mt-2">أكمل المهام لربح رصيد إضافي</p>
         </div>
         <div id="tasks-container" class="flex flex-col gap-3"></div>
     </div>
@@ -106,7 +106,7 @@
     <div id="view-referrals" class="view-section hidden px-4 mb-10">
         <div class="text-center mb-6 mt-2">
             <h2 class="text-2xl font-bold text-white">دعوة الأصدقاء 👥</h2>
-            <p class="text-xs text-gray-400 mt-2">احصل على ₿ 0.001 عن كل صديق تدعوه!</p>
+            <p class="text-xs text-gray-400 mt-2">احصل على $ 0.10 عن كل صديق تدعوه!</p>
         </div>
         
         <div class="btc-card p-5 text-center mb-6">
@@ -129,8 +129,47 @@
             </div>
             <div class="btc-card p-4 text-center">
                 <p class="text-xs text-gray-400 font-bold mb-1">أرباح الدعوات</p>
-                <p class="text-xl font-bold text-btc">₿ <span id="ref-earnings">0.000</span></p>
+                <p class="text-xl font-bold text-btc">$ <span id="ref-earnings">0.00</span></p>
             </div>
+        </div>
+    </div>
+
+    <!-- ================= النوافذ المنبثقة (Modals) ================= -->
+    
+    <!-- نافذة الإيداع -->
+    <div id="deposit-modal" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-center justify-center px-4">
+        <div class="btc-card p-6 w-full max-w-sm relative">
+            <button onclick="closeDepositModal()" class="absolute top-3 right-3 text-gray-400 hover:text-white text-xl">&times;</button>
+            <h2 class="text-xl font-bold text-white mb-4 text-center">إيداع رصيد 📥</h2>
+            <p class="text-sm text-gray-400 text-center mb-4">قم بإرسال USDT (TRC20) إلى هذا العنوان لشراء أجهزة تعدين متطورة:</p>
+            
+            <!-- 🔴 ضع عنوان محفظتك الحقيقي هنا -->
+            <div class="bg-black/50 p-3 rounded-lg text-sm text-btc text-center mb-4 break-all border border-gray-700 select-all" id="admin-wallet">
+                Txxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+            </div>
+            
+            <button onclick="copyWallet()" class="w-full bg-btc text-black font-bold py-2 rounded-lg mb-3">نسخ العنوان 📋</button>
+            <p class="text-[10px] text-red-400 text-center">ملاحظة: سيتم إضافة الرصيد لحسابك يدوياً بعد تأكيد التحويل.</p>
+        </div>
+    </div>
+
+    <!-- نافذة السحب -->
+    <div id="withdraw-modal" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-center justify-center px-4">
+        <div class="btc-card p-6 w-full max-w-sm relative">
+            <button onclick="closeWithdrawModal()" class="absolute top-3 right-3 text-gray-400 hover:text-white text-xl">&times;</button>
+            <h2 class="text-xl font-bold text-white mb-4 text-center">سحب الأرباح 📤</h2>
+            
+            <div class="mb-4">
+                <label class="text-xs text-gray-400 block mb-1">عنوان محفظة USDT (TRC20) الخاصة بك:</label>
+                <input type="text" id="withdraw-address" placeholder="T..." class="w-full bg-black/50 border border-gray-700 rounded-lg p-3 text-white text-sm focus:outline-none focus:border-btc">
+            </div>
+            
+            <div class="mb-6">
+                <label class="text-xs text-gray-400 block mb-1">المبلغ المراد سحبه (الحد الأدنى 5$):</label>
+                <input type="number" id="withdraw-amount" placeholder="5.00" step="1" class="w-full bg-black/50 border border-gray-700 rounded-lg p-3 text-white text-sm focus:outline-none focus:border-btc">
+            </div>
+            
+            <button onclick="submitWithdraw()" class="w-full bg-white text-black hover:bg-gray-200 font-bold py-3 rounded-lg transition">تأكيد السحب</button>
         </div>
     </div>
 
