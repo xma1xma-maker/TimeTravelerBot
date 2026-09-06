@@ -32,6 +32,7 @@ let player = {
     balance: 0,
     lastCollectTime: Date.now( ),
     lastDailyBonus: 0,
+    streakDays: 0, // 🟢 إضافة أيام السلسلة
     miners: [0],
     completedTasks: [],
     referralsCount: 0,
@@ -76,7 +77,8 @@ async function loadUserData() {
         if (data) {
             player.balance = data.balance;
             player.lastCollectTime = data.last_collect_time;
-            player.lastDailyBonus = data.last_daily_bonus;
+            player.lastDailyBonus = data.last_daily_bonus || 0;
+            player.streakDays = data.streak_days || 0; // 🟢 تحميل أيام السلسلة
             player.miners = data.miners;
             player.completedTasks = data.completed_tasks || [];
             player.referralsCount = data.referrals_count || 0;
@@ -99,6 +101,7 @@ async function loadUserData() {
                 miners: player.miners,
                 last_collect_time: player.lastCollectTime,
                 last_daily_bonus: player.lastDailyBonus,
+                streak_days: player.streakDays, // 🟢 حفظ أيام السلسلة
                 completed_tasks: player.completedTasks,
                 referred_by: inviterId
             }]);
@@ -136,6 +139,7 @@ async function saveUserData() {
         miners: player.miners,
         last_collect_time: player.lastCollectTime,
         last_daily_bonus: player.lastDailyBonus,
+        streak_days: player.streakDays, // 🟢 تحديث أيام السلسلة
         completed_tasks: player.completedTasks
     }).eq('id', USER_ID);
 }
@@ -187,7 +191,6 @@ function renderShop() {
     }
 }
 
-// 🟢 دالة المهام المحدثة لتدعم التحقق الذكي
 let activeTasks = {};
 
 function renderTasks() {
@@ -302,7 +305,6 @@ function shareInviteLink() {
     }
 }
 
-// 🟢 دالة بدء المهمة والتحقق الذكي
 async function startTask(taskId, type, target, reqTime) {
     const btn = document.getElementById(`btn-task-${taskId}`);
 
@@ -381,22 +383,44 @@ document.getElementById('btn-collect').addEventListener('click', () => {
     }
 });
 
+// 🟢 نظام المكافآت المتتالية (Daily Streaks)
 document.getElementById('btn-daily-bonus').addEventListener('click', () => {
     const now = Date.now();
-    const cooldown = 24 * 60 * 60 * 1000;
+    const cooldown = 24 * 60 * 60 * 1000; // 24 ساعة
+    const resetTime = 48 * 60 * 60 * 1000; // 48 ساعة (إذا تأخر يعود للصفر)
     const timeSinceLastBonus = now - player.lastDailyBonus;
 
     if (timeSinceLastBonus >= cooldown) {
-        player.balance += 0.10; 
+        
+        // التحقق مما إذا كان قد كسر السلسلة
+        if (timeSinceLastBonus >= resetTime) {
+            player.streakDays = 1; // العودة لليوم الأول
+        } else {
+            player.streakDays += 1; // زيادة يوم
+            if (player.streakDays > 7) player.streakDays = 7; // الحد الأقصى 7 أيام
+        }
+
+        // تحديد قيمة المكافأة بناءً على اليوم
+        let reward = 0.01;
+        if (player.streakDays === 1) reward = 0.01;
+        else if (player.streakDays === 2) reward = 0.02;
+        else if (player.streakDays === 3) reward = 0.03;
+        else if (player.streakDays === 4) reward = 0.04;
+        else if (player.streakDays === 5) reward = 0.05;
+        else if (player.streakDays === 6) reward = 0.06;
+        else if (player.streakDays >= 7) reward = 0.10;
+
+        player.balance += reward;
         player.lastDailyBonus = now;
         saveUserData();
         gameLoop();
-        alert(`مبروك! حصلت على مكافأة يومية $ 0.10`);
+        
+        alert(`🎉 مبروك! حصلت على مكافأة اليوم ${player.streakDays}\nقيمة المكافأة: $ ${reward.toFixed(2)}\n\nعد غداً لزيادة مكافأتك!`);
     } else {
         const timeLeft = cooldown - timeSinceLastBonus;
         const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
         const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-        alert(`عد بعد ${hoursLeft} ساعة و ${minutesLeft} دقيقة.`);
+        alert(`⏳ لقد حصلت على مكافأتك اليوم.\nعد بعد ${hoursLeft} ساعة و ${minutesLeft} دقيقة.`);
     }
 });
 
@@ -414,7 +438,7 @@ function buyMiner(minerId) {
 }
 
 /* ==========================================
-   7. نظام السحب الجديد (شرط 10 إحالات) 🟢
+   7. نظام السحب الجديد (شرط 10 إحالات)
    ========================================== */
 function handleWithdrawClick() {
     const modal = document.getElementById('withdraw-modal');
