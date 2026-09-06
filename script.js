@@ -32,7 +32,7 @@ let player = {
     balance: 0,
     lastCollectTime: Date.now( ),
     lastDailyBonus: 0,
-    lastBoxTime: 0, // 🟢 وقت آخر صندوق
+    lastBoxTime: 0,
     streakDays: 0,
     miners: [0],
     completedTasks: [],
@@ -76,7 +76,7 @@ async function loadUserData() {
             player.balance = data.balance;
             player.lastCollectTime = data.last_collect_time;
             player.lastDailyBonus = data.last_daily_bonus || 0;
-            player.lastBoxTime = data.last_box_time || 0; // 🟢 تحميل وقت الصندوق
+            player.lastBoxTime = data.last_box_time || 0;
             player.streakDays = data.streak_days || 0;
             player.miners = data.miners;
             player.completedTasks = data.completed_tasks || [];
@@ -100,7 +100,7 @@ async function loadUserData() {
                 miners: player.miners,
                 last_collect_time: player.lastCollectTime,
                 last_daily_bonus: player.lastDailyBonus,
-                last_box_time: player.lastBoxTime, // 🟢 حفظ وقت الصندوق
+                last_box_time: player.lastBoxTime,
                 streak_days: player.streakDays,
                 completed_tasks: player.completedTasks,
                 referred_by: inviterId
@@ -139,7 +139,7 @@ async function saveUserData() {
         miners: player.miners,
         last_collect_time: player.lastCollectTime,
         last_daily_bonus: player.lastDailyBonus,
-        last_box_time: player.lastBoxTime, // 🟢 تحديث وقت الصندوق
+        last_box_time: player.lastBoxTime,
         streak_days: player.streakDays,
         completed_tasks: player.completedTasks
     }).eq('id', USER_ID);
@@ -493,7 +493,7 @@ function closeWithdrawModal() {
 }
 
 /* ==========================================
-   8. نظام صناديق الحظ 🎁 🟢
+   8. نظام صناديق الحظ 🎁
    ========================================== */
 function openBoxModal() {
     document.getElementById('box-modal').classList.remove('hidden');
@@ -570,6 +570,30 @@ function openBox(selectedIndex) {
     gameLoop();
     
     setTimeout(checkBoxCooldown, 3000);
+}
+
+/* ==========================================
+   9. نظام إعلانات Adsgram 📺
+   ========================================== */
+const ADSGRAM_BLOCK_ID = "46546"; // 🔴 تم وضع الـ Block ID الخاص بك
+
+const AdController = window.Adsgram ? window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID }) : null;
+
+function showAdsgramAd() {
+    if (!AdController) {
+        alert("نظام الإعلانات غير متوفر حالياً، يرجى المحاولة لاحقاً ⚠️");
+        return;
+    }
+
+    AdController.show().then((result) => {
+        const reward = 0.05; 
+        player.balance += reward;
+        saveUserData();
+        gameLoop();
+        alert(`🎉 شكراً لمشاهدة الإعلان! تمت إضافة $ ${reward} إلى رصيدك.`);
+    }).catch((result) => {
+        alert("⚠️ يجب عليك مشاهدة الإعلان بالكامل للحصول على المكافأة.");
+    });
 }
 
 // 🚀 تشغيل التطبيق
