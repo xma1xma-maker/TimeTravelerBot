@@ -26,7 +26,7 @@
         </div>
     </header>
 
-    <!-- ================= صفحة التعدين (الرئيسية ) ================= -->
+    <!-- ================= صفحة التعدين (الرئيسية  ) ================= -->
     <div id="view-home" class="view-section active">
         <nav class="grid grid-cols-4 gap-3 px-4 mb-6">
             <button id="btn-daily-bonus" class="action-btn">
@@ -136,20 +136,18 @@
 
     <!-- ================= النوافذ المنبثقة (Modals) ================= -->
     
-    <!-- نافذة الإيداع -->
+    <!-- نافذة الإيداع (الجديدة عبر CryptoBot) -->
     <div id="deposit-modal" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-center justify-center px-4">
         <div class="btc-card p-6 w-full max-w-sm relative">
             <button onclick="closeDepositModal()" class="absolute top-3 right-3 text-gray-400 hover:text-white text-xl">&times;</button>
             <h2 class="text-xl font-bold text-white mb-4 text-center">إيداع رصيد 📥</h2>
-            <p class="text-sm text-gray-400 text-center mb-4">قم بإرسال USDT (TRC20) إلى هذا العنوان لشراء أجهزة تعدين متطورة:</p>
+            <p class="text-sm text-gray-400 text-center mb-4">أدخل المبلغ الذي تريد إيداعه (بـ USDT):</p>
             
-            <!-- 🔴 ضع عنوان محفظتك الحقيقي هنا -->
-            <div class="bg-black/50 p-3 rounded-lg text-sm text-btc text-center mb-4 break-all border border-gray-700 select-all" id="admin-wallet">
-                Txxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+            <div class="mb-6">
+                <input type="number" id="deposit-amount" placeholder="مثال: 10" step="1" class="w-full bg-black/50 border border-gray-700 rounded-lg p-3 text-white text-xl font-bold focus:outline-none focus:border-btc text-center">
             </div>
             
-            <button onclick="copyWallet()" class="w-full bg-btc text-black font-bold py-2 rounded-lg mb-3">نسخ العنوان 📋</button>
-            <p class="text-[10px] text-red-400 text-center">ملاحظة: سيتم إضافة الرصيد لحسابك يدوياً بعد تأكيد التحويل.</p>
+            <button onclick="submitDeposit()" id="btn-deposit-submit" class="w-full bg-btc text-black font-bold py-3 rounded-lg transition shadow-lg">دفع عبر CryptoBot 💳</button>
         </div>
     </div>
 
