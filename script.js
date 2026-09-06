@@ -32,7 +32,7 @@ let player = {
     balance: 0,
     lastCollectTime: Date.now( ),
     lastDailyBonus: 0,
-    streakDays: 0, // 🟢 إضافة أيام السلسلة
+    streakDays: 0,
     miners: [0],
     completedTasks: [],
     referralsCount: 0,
@@ -58,9 +58,6 @@ preloadImages();
    ========================================== */
 async function loadUserData() {
     try {
-        const nameBadge = document.querySelector('.user-badge');
-        if(nameBadge) nameBadge.innerText = USER_NAME + ' 👨‍💻';
-
         const { data: tasksData } = await db.from('tasks').select('*');
         if (tasksData) {
             TASKS_DB = tasksData;
@@ -78,7 +75,7 @@ async function loadUserData() {
             player.balance = data.balance;
             player.lastCollectTime = data.last_collect_time;
             player.lastDailyBonus = data.last_daily_bonus || 0;
-            player.streakDays = data.streak_days || 0; // 🟢 تحميل أيام السلسلة
+            player.streakDays = data.streak_days || 0;
             player.miners = data.miners;
             player.completedTasks = data.completed_tasks || [];
             player.referralsCount = data.referrals_count || 0;
@@ -101,7 +98,7 @@ async function loadUserData() {
                 miners: player.miners,
                 last_collect_time: player.lastCollectTime,
                 last_daily_bonus: player.lastDailyBonus,
-                streak_days: player.streakDays, // 🟢 حفظ أيام السلسلة
+                streak_days: player.streakDays,
                 completed_tasks: player.completedTasks,
                 referred_by: inviterId
             }]);
@@ -139,7 +136,7 @@ async function saveUserData() {
         miners: player.miners,
         last_collect_time: player.lastCollectTime,
         last_daily_bonus: player.lastDailyBonus,
-        streak_days: player.streakDays, // 🟢 تحديث أيام السلسلة
+        streak_days: player.streakDays,
         completed_tasks: player.completedTasks
     }).eq('id', USER_ID);
 }
@@ -152,7 +149,7 @@ function renderGrid() {
     grid.innerHTML = '';
     player.miners.forEach(minerId => {
         const miner = MINERS_DB[minerId];
-        grid.innerHTML += `<div class="grid-slot bg-orange-500/10 border-orange-500/30 border-solid"><img src="${miner.img}" class="w-10 h-10 drop-shadow-lg"></div>`;
+        grid.innerHTML += `<div class="grid-slot"><img src="${miner.img}" class="w-10 h-10 drop-shadow-lg"></div>`;
     });
     const emptySlots = Math.max(0, 6 - player.miners.length);
     for(let i=0; i<emptySlots; i++) grid.innerHTML += `<div class="grid-slot"></div>`;
@@ -164,8 +161,6 @@ function renderShop() {
     for(let i=1; i<=4; i++) {
         const miner = MINERS_DB[i];
         const isOwned = player.miners.includes(i);
-        const dailyIncome = (miner.monthly / 30).toFixed(2);
-        const dailyPercent = Math.round((miner.monthly / miner.cost / 30) * 100);
 
         if (isOwned) {
             shop.innerHTML += `
@@ -209,21 +204,23 @@ function renderTasks() {
         const noteHtml = task.note ? `<p class="text-[10px] text-gray-400 mt-1">📌 ${task.note}</p>` : '';
 
         container.innerHTML += `
-            <div class="task-card">
+            <div class="btc-card p-3 mb-3">
                 <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 bg-black/30 rounded-xl border border-gray-700 flex items-center justify-center text-2xl">
+                    <div class="w-12 h-12 bg-gray-800 rounded-xl border border-gray-700 flex items-center justify-center text-2xl">
                         ${iconHtml}
                     </div>
-                    <div>
+                    <div class="flex-1">
                         <h4 class="font-bold text-sm text-white">${task.title}</h4>
                         <p class="text-xs text-btc font-bold mt-1">+ $ ${task.reward}</p>
                         ${noteHtml}
                     </div>
+                    <div>
+                        ${isCompleted 
+                            ? `<button class="btn-task completed">مكتمل ✓</button>`
+                            : `<button onclick="startTask(${task.id}, '${task.type}', '${task.target}', ${task.req_time})" id="btn-task-${task.id}" class="btn-task">اذهب</button>`
+                        }
+                    </div>
                 </div>
-                ${isCompleted 
-                    ? `<button class="btn-task completed">مكتمل ✓</button>`
-                    : `<button onclick="startTask(${task.id}, '${task.type}', '${task.target}', ${task.req_time})" id="btn-task-${task.id}" class="btn-task">اذهب</button>`
-                }
             </div>
         `;
     });
@@ -240,9 +237,7 @@ function calculateStats() {
         maxCapacityBTC += (hourly * miner.capacityHours);
         if (miner.capacityHours > maxHours) maxHours = miner.capacityHours;
     });
-    document.getElementById('rate-hourly').innerText = totalHourlyRate.toFixed(4);
-    document.getElementById('rate-daily').innerText = (totalHourlyRate * 24).toFixed(2);
-    document.getElementById('rate-monthly').innerText = (totalHourlyRate * 720).toFixed(2);
+    
     document.getElementById('storage-text').innerText = `سعة التخزين: ${maxHours} ساعات`;
     
     renderGrid();
@@ -383,24 +378,20 @@ document.getElementById('btn-collect').addEventListener('click', () => {
     }
 });
 
-// 🟢 نظام المكافآت المتتالية (Daily Streaks)
 document.getElementById('btn-daily-bonus').addEventListener('click', () => {
     const now = Date.now();
-    const cooldown = 24 * 60 * 60 * 1000; // 24 ساعة
-    const resetTime = 48 * 60 * 60 * 1000; // 48 ساعة (إذا تأخر يعود للصفر)
+    const cooldown = 24 * 60 * 60 * 1000;
+    const resetTime = 48 * 60 * 60 * 1000;
     const timeSinceLastBonus = now - player.lastDailyBonus;
 
     if (timeSinceLastBonus >= cooldown) {
-        
-        // التحقق مما إذا كان قد كسر السلسلة
         if (timeSinceLastBonus >= resetTime) {
-            player.streakDays = 1; // العودة لليوم الأول
+            player.streakDays = 1;
         } else {
-            player.streakDays += 1; // زيادة يوم
-            if (player.streakDays > 7) player.streakDays = 7; // الحد الأقصى 7 أيام
+            player.streakDays += 1;
+            if (player.streakDays > 7) player.streakDays = 7;
         }
 
-        // تحديد قيمة المكافأة بناءً على اليوم
         let reward = 0.01;
         if (player.streakDays === 1) reward = 0.01;
         else if (player.streakDays === 2) reward = 0.02;
@@ -438,7 +429,7 @@ function buyMiner(minerId) {
 }
 
 /* ==========================================
-   7. نظام السحب الجديد (شرط 10 إحالات)
+   7. نظام السحب الجديد (50$ + 20 إحالة) 🟢
    ========================================== */
 function handleWithdrawClick() {
     const modal = document.getElementById('withdraw-modal');
@@ -446,26 +437,46 @@ function handleWithdrawClick() {
     
     modal.classList.remove('hidden');
     
-    if (player.referralsCount < 10) {
-        const remaining = 10 - player.referralsCount;
+    // الشرط الأول: الوصول إلى 50 دولار
+    if (player.balance < 50) {
+        const remaining = (50 - player.balance).toFixed(2);
         content.innerHTML = `
             <div class="text-center">
                 <div class="text-5xl mb-3">⚠️</div>
-                <p class="text-gray-300 text-sm mb-4">عذراً، يجب عليك دعوة 10 أشخاص على الأقل لتتمكن من سحب أرباحك.</p>
-                <div class="bg-black/50 p-3 rounded-lg border border-gray-700 mb-4">
-                    <p class="text-xs text-gray-400">دعواتك الحالية: <span class="text-white font-bold text-lg">${player.referralsCount}</span> / 10</p>
-                    <p class="text-xs text-red-400 mt-1">متبقي لك ${remaining} دعوات</p>
+                <p class="text-gray-300 text-sm mb-4">عذراً، الحد الأدنى للسحب هو 50$.</p>
+                <div class="bg-gray-900 p-3 rounded-lg border border-gray-700 mb-4">
+                    <p class="text-xs text-gray-400">رصيدك الحالي: <span class="text-white font-bold text-lg">$ ${player.balance.toFixed(2)}</span></p>
+                    <p class="text-xs text-red-400 mt-1">تحتاج إلى $ ${remaining} إضافية</p>
                 </div>
-                <button onclick="closeWithdrawModal(); switchView('referrals', document.getElementById('nav-friends'))" class="w-full bg-btc text-black font-bold py-3 rounded-lg transition shadow-lg">
-                    اذهب لدعوة الأصدقاء 👥
+                <button onclick="closeWithdrawModal()" class="w-full bg-gray-700 text-white font-bold py-3 rounded-lg transition shadow-lg">
+                    حسناً، سأكمل التعدين ⛏️
                 </button>
             </div>
         `;
-    } else {
+    } 
+    // الشرط الثاني: دعوة 20 شخص
+    else if (player.referralsCount < 20) {
+        const remaining = 20 - player.referralsCount;
+        content.innerHTML = `
+            <div class="text-center">
+                <div class="text-5xl mb-3">👥</div>
+                <p class="text-gray-300 text-sm mb-4">لقد وصلت للحد الأدنى! لكن يجب عليك دعوة 20 شخصاً على الأقل لتتمكن من السحب.</p>
+                <div class="bg-gray-900 p-3 rounded-lg border border-gray-700 mb-4">
+                    <p class="text-xs text-gray-400">دعواتك الحالية: <span class="text-white font-bold text-lg">${player.referralsCount}</span> / 20</p>
+                    <p class="text-xs text-red-400 mt-1">متبقي لك ${remaining} دعوات</p>
+                </div>
+                <button onclick="closeWithdrawModal(); switchView('referrals', document.getElementById('nav-friends'))" class="w-full bg-btc text-black font-bold py-3 rounded-lg transition shadow-lg">
+                    اذهب لدعوة الأصدقاء 🚀
+                </button>
+            </div>
+        `;
+    } 
+    // إذا أكمل الشرطين
+    else {
         content.innerHTML = `
             <div class="text-center">
                 <div class="text-5xl mb-3">🎉</div>
-                <p class="text-green-400 font-bold text-lg mb-2">تهانينا! لقد أكملت الشروط.</p>
+                <p class="text-green-400 font-bold text-lg mb-2">تهانينا! لقد أكملت جميع الشروط.</p>
                 <p class="text-gray-300 text-sm mb-4">رصيدك الحالي هو: <span class="text-btc font-bold">$ ${player.balance.toFixed(2)}</span></p>
                 <p class="text-xs text-gray-400 mb-4">يرجى مراسلة الدعم الفني وتزويدهم بعنوان محفظتك (USDT TRC20) لإرسال الأرباح إليك.</p>
                 <button onclick="window.open('https://t.me/${SUPPORT_USERNAME}', '_blank' )" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg transition shadow-lg">
