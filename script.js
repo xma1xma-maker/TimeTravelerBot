@@ -11,7 +11,7 @@ const tg = window.Telegram.WebApp;
 tg.expand();
 const tgUser = tg.initDataUnsafe?.user;
 const USER_ID = tgUser ? tgUser.id : 123456789; 
-const USER_NAME = tgUser ? tgUser.first_name : 'المعدن'; // 🟢 جلب اسم المستخدم
+const USER_NAME = tgUser ? tgUser.first_name : 'المعدن'; 
 const START_PARAM = tg.initDataUnsafe?.start_param; 
 
 /* ==========================================
@@ -56,7 +56,6 @@ preloadImages();
    ========================================== */
 async function loadUserData() {
     try {
-        // 🟢 تغيير الاسم في الواجهة مباشرة
         const nameBadge = document.querySelector('.user-badge');
         if(nameBadge) nameBadge.innerText = USER_NAME + ' 👨‍💻';
 
@@ -82,7 +81,6 @@ async function loadUserData() {
             player.referralsCount = data.referrals_count || 0;
             player.referralEarnings = data.referral_earnings || 0;
             
-            // تحديث الاسم في قاعدة البيانات في حال قام المستخدم بتغييره في تليجرام
             saveUserData(); 
         } else {
             player.lastCollectTime = Date.now();
@@ -95,7 +93,7 @@ async function loadUserData() {
 
             await db.from('users').insert([{
                 id: USER_ID,
-                first_name: USER_NAME, // 🟢 حفظ الاسم في قاعدة البيانات
+                first_name: USER_NAME, 
                 balance: player.balance,
                 miners: player.miners,
                 last_collect_time: player.lastCollectTime,
@@ -105,9 +103,9 @@ async function loadUserData() {
             }]);
         }
 
-        document.getElementById('invite-link' ).innerText = `https://t.me/${BOT_USERNAME}/app?startapp=${USER_ID}`;
+        document.getElementById('invite-link').innerText = `https://t.me/${BOT_USERNAME}/app?startapp=${USER_ID}`;
         document.getElementById('ref-count' ).innerText = player.referralsCount;
-        document.getElementById('ref-earnings').innerText = player.referralEarnings.toFixed(4);
+        document.getElementById('ref-earnings').innerText = player.referralEarnings.toFixed(2); // 🟢 تعديل للأصفار
 
         calculateStats();
         setInterval(gameLoop, 1000);
@@ -118,7 +116,7 @@ async function loadUserData() {
 }
 
 async function rewardInviter(inviterId) {
-    const rewardAmount = 0.1; 
+    const rewardAmount = 0.10; // 🟢 10 سنت مكافأة دعوة
     const { data: inviter } = await db.from('users').select('balance, referrals_count, referral_earnings').eq('id', inviterId).single();
     
     if (inviter) {
@@ -132,7 +130,7 @@ async function rewardInviter(inviterId) {
 
 async function saveUserData() {
     await db.from('users').update({
-        first_name: USER_NAME, // 🟢 تحديث الاسم دائماً
+        first_name: USER_NAME, 
         balance: player.balance,
         miners: player.miners,
         last_collect_time: player.lastCollectTime,
@@ -168,7 +166,7 @@ function renderShop() {
             shop.innerHTML += `
                 <div class="btc-card p-4 text-center relative opacity-60">
                     <p class="text-gray-400 text-[10px] font-bold uppercase">الدخل الشهري</p>
-                    <p class="text-btc font-bold text-xl mt-1">₿ ${miner.monthly}</p>
+                    <p class="text-btc font-bold text-xl mt-1">$ ${miner.monthly}</p> <!-- 🟢 تعديل العملة -->
                     <img src="${miner.img}" class="w-16 h-16 mx-auto my-3 grayscale">
                     <div class="absolute inset-0 flex items-center justify-center z-10">
                         <div class="bg-black/80 text-btc font-bold px-4 py-1 rounded-full border border-orange-500/50 transform -rotate-12">مكتمل ✓</div>
@@ -179,9 +177,9 @@ function renderShop() {
             shop.innerHTML += `
                 <div class="btc-card p-4 text-center">
                     <p class="text-gray-400 text-[10px] font-bold uppercase">الدخل الشهري</p>
-                    <p class="text-btc font-bold text-xl mt-1">₿ ${miner.monthly}</p>
+                    <p class="text-btc font-bold text-xl mt-1">$ ${miner.monthly}</p> <!-- 🟢 تعديل العملة -->
                     <img src="${miner.img}" class="w-16 h-16 mx-auto my-3 drop-shadow-[0_0_10px_rgba(247,147,26,0.2)]">
-                    <button onclick="buyMiner(${i})" class="w-full bg-white text-black hover:bg-gray-200 font-bold py-2 rounded-lg text-sm transition">شراء بـ ${miner.cost} ₿</button>
+                    <button onclick="buyMiner(${i})" class="w-full bg-white text-black hover:bg-gray-200 font-bold py-2 rounded-lg text-sm transition">شراء بـ ${miner.cost} $</button> <!-- 🟢 تعديل العملة -->
                 </div>
             `;
         }
@@ -209,7 +207,7 @@ function renderTasks() {
                     </div>
                     <div>
                         <h4 class="font-bold text-sm text-white">${task.title}</h4>
-                        <p class="text-xs text-btc font-bold mt-1">+ ₿ ${task.reward}</p>
+                        <p class="text-xs text-btc font-bold mt-1">+ $ ${task.reward}</p> <!-- 🟢 تعديل العملة -->
                     </div>
                 </div>
                 ${isCompleted 
@@ -233,8 +231,8 @@ function calculateStats() {
         if (miner.capacityHours > maxHours) maxHours = miner.capacityHours;
     });
     document.getElementById('rate-hourly').innerText = totalHourlyRate.toFixed(4);
-    document.getElementById('rate-daily').innerText = (totalHourlyRate * 24).toFixed(3);
-    document.getElementById('rate-monthly').innerText = (totalHourlyRate * 720).toFixed(2);
+    document.getElementById('rate-daily').innerText = (totalHourlyRate * 24).toFixed(2); // 🟢 تعديل الأصفار
+    document.getElementById('rate-monthly').innerText = (totalHourlyRate * 720).toFixed(2); // 🟢 تعديل الأصفار
     document.getElementById('storage-text').innerText = `سعة التخزين: ${maxHours} ساعات`;
     
     renderGrid();
@@ -253,8 +251,8 @@ function gameLoop() {
         isFull = true;
     }
 
-    document.getElementById('main-balance').innerText = player.balance.toFixed(4);
-    document.getElementById('pending-balance').innerText = pending.toFixed(6);
+    document.getElementById('main-balance').innerText = player.balance.toFixed(2); // 🟢 الرصيد الرئيسي خانتين
+    document.getElementById('pending-balance').innerText = pending.toFixed(4); // 🟢 العداد 4 خانات
 
     const progressPercent = (pending / maxCapacityBTC) * 100;
     document.getElementById('progress-fill').style.width = `${progressPercent}%`;
@@ -287,7 +285,7 @@ function copyInviteLink() {
 
 function shareInviteLink() {
     const link = document.getElementById('invite-link').innerText;
-    const text = "انضم إلي في تعدين البتكوين واربح العملات مجاناً! 🚀💰";
+    const text = "انضم إلي في التعدين واربح الدولارات مجاناً! 🚀💰";
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link )}&text=${encodeURIComponent(text)}`;
     
     if (window.Telegram && window.Telegram.WebApp) {
@@ -313,7 +311,7 @@ function startTask(taskId, link) {
             saveUserData();
             gameLoop();
             renderTasks();
-            alert(`تم التحقق! حصلت على ₿ ${task.reward}`);
+            alert(`تم التحقق! حصلت على $ ${task.reward}`); // 🟢 تعديل العملة
         }
     }, 3000);
 }
@@ -323,7 +321,7 @@ document.getElementById('btn-collect').addEventListener('click', () => {
     const elapsedHours = (now - player.lastCollectTime) / (1000 * 60 * 60);
     let pending = elapsedHours * totalHourlyRate;
     if (pending >= maxCapacityBTC) pending = maxCapacityBTC;
-    const MIN_COLLECT = 0.0001; 
+    const MIN_COLLECT = 0.01; // 🟢 الحد الأدنى للجمع 1 سنت
 
     if (pending >= MIN_COLLECT || pending >= maxCapacityBTC) {
         player.balance += pending;
@@ -331,7 +329,7 @@ document.getElementById('btn-collect').addEventListener('click', () => {
         saveUserData();
         gameLoop();
     } else {
-        alert(`عذراً! الحد الأدنى للجمع هو ${MIN_COLLECT} ₿.`);
+        alert(`عذراً! الحد الأدنى للجمع هو $ ${MIN_COLLECT}.`); // 🟢 تعديل العملة
     }
 });
 
@@ -341,11 +339,11 @@ document.getElementById('btn-daily-bonus').addEventListener('click', () => {
     const timeSinceLastBonus = now - player.lastDailyBonus;
 
     if (timeSinceLastBonus >= cooldown) {
-        player.balance += 0.0005;
+        player.balance += 0.10; // 🟢 10 سنت مكافأة يومية
         player.lastDailyBonus = now;
         saveUserData();
         gameLoop();
-        alert(`مبروك! حصلت على مكافأة يومية ₿ 0.0005`);
+        alert(`مبروك! حصلت على مكافأة يومية $ 0.10`); // 🟢 تعديل العملة
     } else {
         const timeLeft = cooldown - timeSinceLastBonus;
         const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
@@ -363,7 +361,78 @@ function buyMiner(minerId) {
         calculateStats();
         saveUserData();
     } else {
-        alert(`رصيدك غير كافٍ! تحتاج إلى ₿ ${miner.cost}`);
+        alert(`رصيدك غير كافٍ! تحتاج إلى $ ${miner.cost}`); // 🟢 تعديل العملة
+    }
+}
+
+/* ==========================================
+   7. نظام الإيداع والسحب 🟢 (تمت إضافته)
+   ========================================== */
+function openDepositModal() {
+    document.getElementById('deposit-modal').classList.remove('hidden');
+}
+
+function closeDepositModal() {
+    document.getElementById('deposit-modal').classList.add('hidden');
+}
+
+function copyWallet() {
+    const wallet = document.getElementById('admin-wallet').innerText;
+    navigator.clipboard.writeText(wallet);
+    if (window.Telegram && window.Telegram.WebApp.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+    }
+    alert("تم نسخ عنوان المحفظة بنجاح! 📋");
+}
+
+function openWithdrawModal() {
+    document.getElementById('withdraw-modal').classList.remove('hidden');
+}
+
+function closeWithdrawModal() {
+    document.getElementById('withdraw-modal').classList.add('hidden');
+}
+
+async function submitWithdraw() {
+    const address = document.getElementById('withdraw-address').value.trim();
+    const amount = parseFloat(document.getElementById('withdraw-amount').value);
+    const MIN_WITHDRAW = 5.00; // 🟢 الحد الأدنى للسحب 5 دولار
+
+    if (!address || isNaN(amount) || amount <= 0) {
+        return alert("يرجى إدخال عنوان المحفظة والمبلغ بشكل صحيح ⚠️");
+    }
+
+    if (amount < MIN_WITHDRAW) {
+        return alert(`الحد الأدنى للسحب هو $ ${MIN_WITHDRAW} ⚠️`);
+    }
+
+    if (amount > player.balance) {
+        return alert("رصيدك الحالي غير كافٍ لإتمام عملية السحب ❌");
+    }
+
+    // خصم الرصيد من المستخدم
+    player.balance -= amount;
+    saveUserData();
+    gameLoop();
+
+    // إرسال الطلب إلى قاعدة البيانات
+    try {
+        await db.from('withdrawals').insert([{
+            user_id: USER_ID,
+            wallet_address: address,
+            amount: amount
+        }]);
+        
+        alert("✅ تم تقديم طلب السحب بنجاح! سيتم تحويل المبلغ بعد المراجعة.");
+        closeWithdrawModal();
+        
+        // تفريغ الحقول
+        document.getElementById('withdraw-address').value = '';
+        document.getElementById('withdraw-amount').value = '';
+        
+    } catch (error) {
+        console.error("خطأ في السحب:", error);
+        alert("حدث خطأ أثناء تقديم الطلب، يرجى المحاولة لاحقاً.");
     }
 }
 
