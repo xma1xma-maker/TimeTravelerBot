@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Miner Pro Premium</title>
+    <title>Miner Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -12,15 +12,15 @@
 <body>
 
     <!-- الرأس: الرصيد الإجمالي -->
-    <header class="p-5">
-        <div class="glass-card p-5 flex justify-between items-center">
+    <header class="p-4">
+        <div class="btc-card p-4 flex justify-between items-center">
             <div>
-                <p class="text-xs text-gray-400 font-bold mb-1 uppercase tracking-wider">الرصيد الإجمالي</p>
-                <p class="text-3xl font-black text-gradient">
+                <p class="text-xs text-gray-400 font-bold mb-1">الرصيد الإجمالي</p>
+                <p class="text-2xl font-bold text-btc">
                     $ <span id="main-balance">0.00</span>
                 </p>
             </div>
-            <div class="user-badge bg-white/10 px-4 py-2 rounded-full text-sm font-bold border border-white/10 backdrop-blur-md">
+            <div class="bg-gray-800 px-3 py-1 rounded-full text-sm border border-gray-700">
                 المعدن 👨‍💻
             </div>
         </div>
@@ -29,141 +29,130 @@
     <!-- ================= صفحة التعدين (الرئيسية ) ================= -->
     <div id="view-home" class="view-section active">
         
-        <!-- الأزرار السريعة -->
-        <nav class="grid grid-cols-3 gap-4 px-5 mb-8">
+        <nav class="grid grid-cols-3 gap-3 px-4 mb-6">
             <button id="btn-daily-bonus" class="action-btn">
-                <span class="text-2xl mb-2 drop-shadow-lg">🎁</span> مكافأة
+                <span class="text-xl mb-1">🎁</span> مكافأة
             </button>
             <button onclick="handleWithdrawClick()" class="action-btn">
-                <span class="text-2xl mb-2 drop-shadow-lg">📤</span> سحب
+                <span class="text-xl mb-1">📤</span> سحب
             </button>
             <button class="action-btn" onclick="switchView('referrals', document.getElementById('nav-friends'))">
-                <span class="text-2xl mb-2 drop-shadow-lg">👥</span> إحالات
+                <span class="text-xl mb-1">👥</span> إحالات
             </button>
         </nav>
 
-        <!-- لوحة التعدين الرئيسية -->
-        <section class="px-5 mb-8">
-            <div class="glass-card p-6 text-center relative overflow-hidden">
-                <!-- تأثير إضاءة خلفي خفيف -->
-                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-32 bg-orange-500/20 rounded-full blur-3xl"></div>
-                
-                <h3 class="font-bold text-gray-400 text-sm tracking-wide">الرصيد المستحق</h3>
-                <p class="text-5xl font-black mt-3 mb-6 text-white drop-shadow-lg">
-                    <span class="text-3xl text-orange-400">$</span> <span id="pending-balance">0.0000</span>
+        <section class="px-4 mb-8">
+            <div class="btc-card p-5 text-center relative">
+                <h3 class="font-bold text-gray-400 text-sm">الرصيد المستحق</h3>
+                <p class="text-4xl font-bold mt-2 mb-4 text-white">
+                    <span class="text-2xl text-btc">$</span> <span id="pending-balance">0.0000</span>
                 </p>
                 
-                <div class="mb-6 text-right relative z-10">
-                    <div class="flex justify-between text-xs font-bold mb-2">
+                <div class="mb-5 text-right">
+                    <div class="flex justify-between text-[10px] font-bold mb-1">
                         <span id="storage-text" class="text-gray-400">سعة التخزين: 1 ساعة</span>
-                        <span id="progress-text" class="text-orange-400">0%</span>
+                        <span id="progress-text" class="text-btc">0%</span>
                     </div>
                     <div class="progress-bg">
                         <div id="progress-fill" class="progress-fill"></div>
                     </div>
-                    <p id="storage-warning" class="text-[10px] text-gray-500 mt-2 text-center">يستمر التعدين حتى يمتلئ الخزان</p>
+                    <p id="storage-warning" class="text-[10px] text-gray-500 mt-1 text-center">يستمر التعدين حتى يمتلئ الخزان</p>
                 </div>
 
-                <div class="grid grid-cols-3 gap-3 mb-6 relative z-10">
-                    <div class="bg-black/30 rounded-xl p-2 border border-white/5">
+                <div class="grid grid-cols-3 gap-3 mb-5">
+                    <div class="bg-gray-800 rounded-lg p-2 border border-gray-700">
                         <p class="text-[10px] text-gray-400 mb-1">في الساعة</p>
                         <p class="text-sm font-bold text-white">$ <span id="rate-hourly">0.00</span></p>
                     </div>
-                    <div class="bg-black/30 rounded-xl p-2 border border-white/5">
+                    <div class="bg-gray-800 rounded-lg p-2 border border-gray-700">
                         <p class="text-[10px] text-gray-400 mb-1">في اليوم</p>
                         <p class="text-sm font-bold text-white">$ <span id="rate-daily">0.00</span></p>
                     </div>
-                    <div class="bg-black/30 rounded-xl p-2 border border-white/5">
+                    <div class="bg-gray-800 rounded-lg p-2 border border-gray-700">
                         <p class="text-[10px] text-gray-400 mb-1">في الشهر</p>
                         <p class="text-sm font-bold text-white">$ <span id="rate-monthly">0.00</span></p>
                     </div>
                 </div>
 
-                <button id="btn-collect" class="btn-primary w-full font-black py-4 text-lg relative z-10">
-                    جمع الأرباح ⚡
+                <button id="btn-collect" class="btn-collect w-full font-bold py-3 rounded-xl text-lg shadow-lg">
+                    جمع الأرباح
                 </button>
             </div>
         </section>
 
-        <!-- شبكة الأجهزة -->
-        <section class="px-5 mb-8">
-            <h3 class="text-sm font-bold text-gray-300 mb-4 px-1 flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> أجهزتك النشطة
-            </h3>
-            <div class="grid grid-cols-3 gap-3 p-4 glass-card" id="miners-grid"></div>
+        <section class="px-4 mb-8">
+            <h3 class="text-sm font-bold text-gray-300 mb-3 px-1">أجهزتك النشطة</h3>
+            <div class="grid grid-cols-3 gap-3 p-3 btc-card" id="miners-grid"></div>
         </section>
 
-        <!-- المتجر -->
-        <section class="px-5 mb-10">
-            <h2 class="text-xl font-black mb-5 text-white flex items-center gap-2">
-                شراء أجهزة 🛒
-            </h2>
+        <section class="px-4 mb-10">
+            <h2 class="text-lg font-bold mb-4 text-white border-b border-gray-700 pb-2">شراء أجهزة تعدين 🛒</h2>
             <div class="grid grid-cols-2 gap-4" id="shop-container"></div>
         </section>
     </div>
 
     <!-- ================= صفحة المهام ================= -->
-    <div id="view-tasks" class="view-section hidden px-5 mb-10">
-        <div class="text-center mb-8 mt-4">
-            <h2 class="text-3xl font-black text-gradient">مركز المهام 🎯</h2>
-            <p class="text-sm text-gray-400 mt-2">أكمل المهام لربح رصيد إضافي</p>
+    <div id="view-tasks" class="view-section hidden px-4 mb-10">
+        <div class="text-center mb-6 mt-2">
+            <h2 class="text-2xl font-bold text-white">مركز المهام 🎯</h2>
+            <p class="text-xs text-gray-400 mt-2">أكمل المهام لربح رصيد إضافي</p>
         </div>
-        <div id="tasks-container" class="flex flex-col gap-4"></div>
+        <div id="tasks-container" class="flex flex-col gap-3"></div>
     </div>
 
     <!-- ================= صفحة الأصدقاء (الإحالات) ================= -->
-    <div id="view-referrals" class="view-section hidden px-5 mb-10">
-        <div class="text-center mb-8 mt-4">
-            <h2 class="text-3xl font-black text-gradient">دعوة الأصدقاء 👥</h2>
-            <p class="text-sm text-gray-400 mt-2">احصل على $ 0.10 عن كل صديق تدعوه!</p>
+    <div id="view-referrals" class="view-section hidden px-4 mb-10">
+        <div class="text-center mb-6 mt-2">
+            <h2 class="text-2xl font-bold text-white">دعوة الأصدقاء 👥</h2>
+            <p class="text-xs text-gray-400 mt-2">احصل على $ 0.10 عن كل صديق تدعوه!</p>
         </div>
         
-        <div class="glass-card p-6 text-center mb-6">
-            <h3 class="text-sm text-gray-300 font-bold mb-3">رابط الدعوة الخاص بك</h3>
-            <div class="bg-black/50 p-4 rounded-xl border border-white/10 mb-5 overflow-hidden">
-                <p id="invite-link" class="text-xs text-orange-400 font-bold truncate">جاري التحميل...</p>
+        <div class="btc-card p-5 text-center mb-6">
+            <h3 class="text-sm text-gray-400 font-bold mb-2">رابط الدعوة الخاص بك</h3>
+            <div class="bg-gray-900 p-3 rounded-lg border border-gray-700 mb-4 overflow-hidden">
+                <p id="invite-link" class="text-xs text-btc font-bold truncate">جاري التحميل...</p>
             </div>
-            <button onclick="copyInviteLink()" class="btn-primary w-full font-bold py-3 mb-3">
+            <button onclick="copyInviteLink()" class="btn-collect w-full font-bold py-3 rounded-xl text-sm shadow-lg mb-2">
                 نسخ الرابط 📋
             </button>
-            <button onclick="shareInviteLink()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition">
+            <button onclick="shareInviteLink()" class="bg-blue-600 text-white w-full font-bold py-3 rounded-xl text-sm shadow-lg">
                 مشاركة عبر تليجرام ✈️
             </button>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
-            <div class="glass-card p-5 text-center">
-                <p class="text-xs text-gray-400 font-bold mb-2">الأصدقاء</p>
-                <p class="text-3xl font-black text-white" id="ref-count">0</p>
+            <div class="btc-card p-4 text-center">
+                <p class="text-xs text-gray-400 font-bold mb-1">الأصدقاء</p>
+                <p class="text-2xl font-bold text-white" id="ref-count">0</p>
             </div>
-            <div class="glass-card p-5 text-center">
-                <p class="text-xs text-gray-400 font-bold mb-2">أرباح الدعوات</p>
-                <p class="text-2xl font-black text-orange-400">$ <span id="ref-earnings">0.00</span></p>
+            <div class="btc-card p-4 text-center">
+                <p class="text-xs text-gray-400 font-bold mb-1">أرباح الدعوات</p>
+                <p class="text-xl font-bold text-btc">$ <span id="ref-earnings">0.00</span></p>
             </div>
         </div>
     </div>
 
     <!-- ================= النوافذ المنبثقة (Modals) ================= -->
-    <div id="withdraw-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-[100] hidden flex items-center justify-center px-5">
-        <div class="glass-card p-8 w-full max-w-sm relative text-center border border-white/20">
-            <button onclick="closeWithdrawModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl">&times;</button>
-            <h2 class="text-2xl font-black text-white mb-6">سحب الأرباح 📤</h2>
+    <div id="withdraw-modal" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-center justify-center px-4">
+        <div class="btc-card p-6 w-full max-w-sm relative text-center">
+            <button onclick="closeWithdrawModal()" class="absolute top-3 right-3 text-gray-400 hover:text-white text-xl">&times;</button>
+            <h2 class="text-xl font-bold text-white mb-4">سحب الأرباح 📤</h2>
             <div id="withdraw-content"></div>
         </div>
     </div>
 
-    <!-- ================= شريط التنقل السفلي العائم ================= -->
-    <nav class="bottom-nav-glass fixed bottom-0 left-0 right-0 flex justify-around items-center p-2 z-50">
-        <div class="nav-item active w-1/3" id="nav-home" onclick="switchView('home', this)">
-            <svg class="w-7 h-7 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+    <!-- ================= شريط التنقل السفلي ================= -->
+    <nav class="bottom-nav fixed bottom-0 w-full flex justify-around items-center p-2 z-50">
+        <div class="nav-item active" id="nav-home" onclick="switchView('home', this)">
+            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
             <span>التعدين</span>
         </div>
-        <div class="nav-item w-1/3" id="nav-tasks" onclick="switchView('tasks', this)">
-            <svg class="w-7 h-7 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+        <div class="nav-item" id="nav-tasks" onclick="switchView('tasks', this)">
+            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
             <span>المهام</span>
         </div>
-        <div class="nav-item w-1/3" id="nav-friends" onclick="switchView('referrals', this)">
-            <svg class="w-7 h-7 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        <div class="nav-item" id="nav-friends" onclick="switchView('referrals', this)">
+            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
             <span>الأصدقاء</span>
         </div>
     </nav>
