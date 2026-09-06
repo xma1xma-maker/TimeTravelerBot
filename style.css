@@ -1,50 +1,40 @@
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap' );
-
 body {
-    font-family: 'Cairo', sans-serif;
-    background: radial-gradient(circle at top right, #1f1c2c, #0f0f1a, #000000);
-    color: #ffffff;
-    min-height: 100vh;
+    background-color: #0f172a; /* لون خلفية داكن مريح */
+    color: #f8fafc;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     margin: 0;
-    padding-bottom: 90px; /* مساحة للشريط السفلي */
+    padding-bottom: 80px;
     -webkit-tap-highlight-color: transparent;
 }
 
-/* تأثير الزجاج الفخم للبطاقات */
-.glass-card {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 24px;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+/* البطاقات */
+.btc-card {
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-/* النص الذهبي المتدرج */
-.text-gradient {
-    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
+/* الألوان الأساسية */
+.text-btc { color: #f59e0b; }
+.bg-btc { background-color: #f59e0b; }
 
 /* الأزرار الرئيسية */
-.btn-primary {
-    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-    color: #111;
-    border-radius: 16px;
-    box-shadow: 0 4px 15px rgba(253, 160, 133, 0.3);
-    transition: all 0.2s ease;
+.btn-collect {
+    background-color: #f59e0b;
+    color: #000000;
+    transition: opacity 0.2s;
 }
-.btn-primary:active {
-    transform: scale(0.95);
-    box-shadow: 0 2px 10px rgba(253, 160, 133, 0.2);
+.btn-collect:active {
+    opacity: 0.8;
+    transform: scale(0.98);
 }
 
-/* أزرار الإجراءات السريعة (مكافأة، سحب...) */
+/* أزرار الإجراءات السريعة */
 .action-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 18px;
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
     padding: 12px 5px;
     display: flex;
     flex-direction: column;
@@ -52,41 +42,33 @@ body {
     justify-content: center;
     font-size: 12px;
     font-weight: 600;
-    color: #e2e8f0;
-    transition: all 0.2s ease;
+    color: #cbd5e1;
+    transition: background-color 0.2s;
 }
 .action-btn:active {
-    background: rgba(255, 255, 255, 0.1);
-    transform: scale(0.92);
+    background-color: #334155;
 }
 
-/* شريط التعدين المضيء */
+/* شريط التعدين */
 .progress-bg {
-    background: rgba(0, 0, 0, 0.5);
-    border-radius: 20px;
-    height: 12px;
+    background-color: #334155;
+    border-radius: 999px;
+    height: 10px;
     width: 100%;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 .progress-fill {
-    background: linear-gradient(90deg, #f6d365, #fda085);
+    background-color: #f59e0b;
     height: 100%;
     width: 0%;
-    border-radius: 20px;
-    transition: width 0.5s ease;
-    box-shadow: 0 0 10px rgba(253, 160, 133, 0.5);
+    border-radius: 999px;
+    transition: width 0.3s ease;
 }
 
-/* الشريط السفلي العائم */
-.bottom-nav-glass {
-    background: rgba(15, 15, 26, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 24px;
-    margin: 0 16px 16px 16px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+/* الشريط السفلي */
+.bottom-nav {
+    background-color: #1e293b;
+    border-top: 1px solid #334155;
 }
 .nav-item {
     display: flex;
@@ -94,28 +76,34 @@ body {
     align-items: center;
     color: #64748b;
     font-size: 11px;
-    font-weight: 700;
-    transition: all 0.3s ease;
+    font-weight: bold;
     padding: 8px;
 }
 .nav-item.active {
-    color: #fda085;
-    transform: translateY(-3px);
-}
-.nav-item svg {
-    transition: all 0.3s ease;
-}
-.nav-item.active svg {
-    filter: drop-shadow(0 0 5px rgba(253, 160, 133, 0.5));
+    color: #f59e0b;
 }
 
 /* شبكة الأجهزة */
 .grid-slot {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px dashed rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
+    background-color: #0f172a;
+    border: 1px dashed #334155;
+    border-radius: 12px;
     height: 70px;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+/* أزرار المهام */
+.btn-task {
+    background-color: #3b82f6;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: bold;
+}
+.btn-task.completed {
+    background-color: #22c55e;
+    pointer-events: none;
 }
