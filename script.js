@@ -186,6 +186,9 @@ function renderShop() {
     }
 }
 
+// 🟢 دالة المهام المحدثة لتدعم التحقق الذكي
+let activeTasks = {};
+
 function renderTasks() {
     const container = document.getElementById('tasks-container');
     container.innerHTML = '';
@@ -199,6 +202,9 @@ function renderTasks() {
             iconHtml = task.icon || '🎯';
         }
 
+        // إظهار الملاحظة إذا كانت موجودة
+        const noteHtml = task.note ? `<p class="text-[10px] text-gray-400 mt-1">📌 ${task.note}</p>` : '';
+
         container.innerHTML += `
             <div class="task-card">
                 <div class="flex items-center gap-3">
@@ -208,11 +214,12 @@ function renderTasks() {
                     <div>
                         <h4 class="font-bold text-sm text-white">${task.title}</h4>
                         <p class="text-xs text-btc font-bold mt-1">+ $ ${task.reward}</p>
+                        ${noteHtml}
                     </div>
                 </div>
                 ${isCompleted 
                     ? `<button class="btn-task completed">مكتمل ✓</button>`
-                    : `<button onclick="startTask(${task.id}, '${task.link}')" id="btn-task-${task.id}" class="btn-task">اذهب</button>`
+                    : `<button onclick="startTask(${task.id}, '${task.type}', '${task.target}', ${task.req_time})" id="btn-task-${task.id}" class="btn-task">اذهب</button>`
                 }
             </div>
         `;
@@ -295,25 +302,70 @@ function shareInviteLink() {
     }
 }
 
-function startTask(taskId, link) {
-    if (window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.openLink(link);
-    else window.open(link, '_blank');
-    
+// 🟢 دالة بدء المهمة والتحقق الذكي
+async function startTask(taskId, type, target, reqTime) {
     const btn = document.getElementById(`btn-task-${taskId}`);
-    btn.innerText = "تحقق...";
-    btn.style.backgroundColor = "#facc15";
-    
-    setTimeout(() => {
-        const task = TASKS_DB.find(t => t.id === taskId);
-        if(task) {
-            player.balance += task.reward;
-            player.completedTasks.push(taskId);
-            saveUserData();
-            gameLoop();
-            renderTasks();
-            alert(`تم التحقق! حصلت على $ ${task.reward}`);
+
+    // الضغطة الأولى: الذهاب للرابط وبدء العداد
+    if (!activeTasks[taskId]) {
+        if (window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.openLink(target);
+        else window.open(target, '_blank');
+        
+        activeTasks[taskId] = Date.now();
+        btn.innerText = "تحقق";
+        btn.style.backgroundColor = "#facc15";
+        return;
+    }
+
+    // الضغطة الثانية: التحقق
+    btn.innerText = "جاري التحقق... ⏳";
+    btn.disabled = true;
+
+    const task = TASKS_DB.find(t => t.id === taskId);
+
+    if (type === 'telegram') {
+        // تحقق حقيقي من تليجرام عبر Vercel
+        try {
+            const res = await fetch('/api/checkSub', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: USER_ID, channel: target })
+            });
+            const data = await res.json();
+            
+            if (data.isSubscribed) {
+                completeTask(task);
+            } else {
+                alert("عذراً، أنت لم تشترك في القناة بعد! ❌");
+                btn.innerText = "تحقق";
+                btn.disabled = false;
+            }
+        } catch (e) {
+            alert("حدث خطأ في الاتصال بالخادم ⚠️");
+            btn.innerText = "تحقق";
+            btn.disabled = false;
         }
-    }, 3000);
+    } else {
+        // تحقق من الوقت للمواقع
+        const elapsedSeconds = (Date.now() - activeTasks[taskId]) / 1000;
+        if (elapsedSeconds >= reqTime) {
+            completeTask(task);
+        } else {
+            const remaining = Math.ceil(reqTime - elapsedSeconds);
+            alert(`يجب البقاء في الموقع للمدة المحددة. يرجى الانتظار ${remaining} ثانية إضافية ⏳`);
+            btn.innerText = "تحقق";
+            btn.disabled = false;
+        }
+    }
+}
+
+function completeTask(task) {
+    player.balance += task.reward;
+    player.completedTasks.push(task.id);
+    saveUserData();
+    gameLoop();
+    renderTasks();
+    alert(`تم التحقق بنجاح! حصلت على $ ${task.reward} 🎉`);
 }
 
 document.getElementById('btn-collect').addEventListener('click', () => {
@@ -376,7 +428,6 @@ function closeDepositModal() {
     document.getElementById('deposit-modal').classList.add('hidden');
 }
 
-// 🟢 دالة الإيداع التلقائي عبر CryptoBot
 async function submitDeposit() {
     const amountInput = document.getElementById('deposit-amount').value;
     const amount = parseFloat(amountInput);
@@ -390,7 +441,6 @@ async function submitDeposit() {
     btn.disabled = true;
 
     try {
-        // الاتصال بالخادم الذي أنشأناه في Vercel
         const response = await fetch('/api/createInvoice', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -400,7 +450,6 @@ async function submitDeposit() {
         const data = await response.json();
 
         if (data.payUrl) {
-            // فتح رابط الدفع الخاص بـ CryptoBot داخل تليجرام
             if (window.Telegram && window.Telegram.WebApp) {
                 window.Telegram.WebApp.openLink(data.payUrl);
             } else {
@@ -453,12 +502,10 @@ async function submitWithdraw() {
         return alert("رصيدك الحالي غير كافٍ لإتمام عملية السحب ❌");
     }
 
-    // خصم الرصيد من المستخدم
     player.balance -= amount;
     saveUserData();
     gameLoop();
 
-    // إرسال الطلب إلى قاعدة البيانات
     try {
         await db.from('withdrawals').insert([{
             user_id: USER_ID,
@@ -469,7 +516,6 @@ async function submitWithdraw() {
         alert("✅ تم تقديم طلب السحب بنجاح! سيتم تحويل المبلغ بعد المراجعة.");
         closeWithdrawModal();
         
-        // تفريغ الحقول
         document.getElementById('withdraw-address').value = '';
         document.getElementById('withdraw-amount').value = '';
         
