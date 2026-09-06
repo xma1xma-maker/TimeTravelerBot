@@ -4,8 +4,9 @@
 const SUPABASE_URL = 'https://tgpwdfegzdicypqfpjym.supabase.co'; 
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRncHdkZmVnemRpY3lwcWZwanltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MjMzODMsImV4cCI6MjEwNDA5OTM4M30.wFodcxwYL4KbiR09__Esi6C8du0nB5R54oIio8gdvMk'; 
 const BOT_USERNAME = 'BitPMinerbot'; 
+const SUPPORT_USERNAME = 'YOUR_SUPPORT_USERNAME'; // 🔴 ضع يوزر حساب الدعم الفني هنا (بدون @ )
 
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY );
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const tg = window.Telegram.WebApp;
 tg.expand();
@@ -202,7 +203,6 @@ function renderTasks() {
             iconHtml = task.icon || '🎯';
         }
 
-        // إظهار الملاحظة إذا كانت موجودة
         const noteHtml = task.note ? `<p class="text-[10px] text-gray-400 mt-1">📌 ${task.note}</p>` : '';
 
         container.innerHTML += `
@@ -306,7 +306,6 @@ function shareInviteLink() {
 async function startTask(taskId, type, target, reqTime) {
     const btn = document.getElementById(`btn-task-${taskId}`);
 
-    // الضغطة الأولى: الذهاب للرابط وبدء العداد
     if (!activeTasks[taskId]) {
         if (window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.openLink(target);
         else window.open(target, '_blank');
@@ -317,14 +316,12 @@ async function startTask(taskId, type, target, reqTime) {
         return;
     }
 
-    // الضغطة الثانية: التحقق
     btn.innerText = "جاري التحقق... ⏳";
     btn.disabled = true;
 
     const task = TASKS_DB.find(t => t.id === taskId);
 
     if (type === 'telegram') {
-        // تحقق حقيقي من تليجرام عبر Vercel
         try {
             const res = await fetch('/api/checkSub', {
                 method: 'POST',
@@ -346,7 +343,6 @@ async function startTask(taskId, type, target, reqTime) {
             btn.disabled = false;
         }
     } else {
-        // تحقق من الوقت للمواقع
         const elapsedSeconds = (Date.now() - activeTasks[taskId]) / 1000;
         if (elapsedSeconds >= reqTime) {
             completeTask(task);
@@ -418,111 +414,46 @@ function buyMiner(minerId) {
 }
 
 /* ==========================================
-   7. نظام الإيداع والسحب 🟢
+   7. نظام السحب الجديد (شرط 10 إحالات) 🟢
    ========================================== */
-function openDepositModal() {
-    document.getElementById('deposit-modal').classList.remove('hidden');
-}
-
-function closeDepositModal() {
-    document.getElementById('deposit-modal').classList.add('hidden');
-}
-
-async function submitDeposit() {
-    const amountInput = document.getElementById('deposit-amount').value;
-    const amount = parseFloat(amountInput);
-
-    if (isNaN(amount) || amount <= 0) {
-        return alert("يرجى إدخال مبلغ صحيح ⚠️");
+function handleWithdrawClick() {
+    const modal = document.getElementById('withdraw-modal');
+    const content = document.getElementById('withdraw-content');
+    
+    modal.classList.remove('hidden');
+    
+    if (player.referralsCount < 10) {
+        const remaining = 10 - player.referralsCount;
+        content.innerHTML = `
+            <div class="text-center">
+                <div class="text-5xl mb-3">⚠️</div>
+                <p class="text-gray-300 text-sm mb-4">عذراً، يجب عليك دعوة 10 أشخاص على الأقل لتتمكن من سحب أرباحك.</p>
+                <div class="bg-black/50 p-3 rounded-lg border border-gray-700 mb-4">
+                    <p class="text-xs text-gray-400">دعواتك الحالية: <span class="text-white font-bold text-lg">${player.referralsCount}</span> / 10</p>
+                    <p class="text-xs text-red-400 mt-1">متبقي لك ${remaining} دعوات</p>
+                </div>
+                <button onclick="closeWithdrawModal(); switchView('referrals', document.getElementById('nav-friends'))" class="w-full bg-btc text-black font-bold py-3 rounded-lg transition shadow-lg">
+                    اذهب لدعوة الأصدقاء 👥
+                </button>
+            </div>
+        `;
+    } else {
+        content.innerHTML = `
+            <div class="text-center">
+                <div class="text-5xl mb-3">🎉</div>
+                <p class="text-green-400 font-bold text-lg mb-2">تهانينا! لقد أكملت الشروط.</p>
+                <p class="text-gray-300 text-sm mb-4">رصيدك الحالي هو: <span class="text-btc font-bold">$ ${player.balance.toFixed(2)}</span></p>
+                <p class="text-xs text-gray-400 mb-4">يرجى مراسلة الدعم الفني وتزويدهم بعنوان محفظتك (USDT TRC20) لإرسال الأرباح إليك.</p>
+                <button onclick="window.open('https://t.me/${SUPPORT_USERNAME}', '_blank' )" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg transition shadow-lg">
+                    مراسلة الدعم الفني 💬
+                </button>
+            </div>
+        `;
     }
-
-    const btn = document.getElementById('btn-deposit-submit');
-    btn.innerText = "جاري تجهيز الفاتورة... ⏳";
-    btn.disabled = true;
-
-    try {
-        const response = await fetch('/api/createInvoice', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: amount, userId: USER_ID })
-        });
-
-        const data = await response.json();
-
-        if (data.payUrl) {
-            if (window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.openLink(data.payUrl);
-            } else {
-                window.open(data.payUrl, '_blank');
-            }
-            closeDepositModal();
-        } else {
-            alert("حدث خطأ أثناء إنشاء الفاتورة ❌");
-        }
-    } catch (error) {
-        console.error("Deposit error:", error);
-        alert("حدث خطأ في الاتصال بالخادم ⚠️");
-    } finally {
-        btn.innerText = "دفع عبر CryptoBot 💳";
-        btn.disabled = false;
-    }
-}
-
-function copyWallet() {
-    const wallet = document.getElementById('admin-wallet').innerText;
-    navigator.clipboard.writeText(wallet);
-    if (window.Telegram && window.Telegram.WebApp.HapticFeedback) {
-        window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-    }
-    alert("تم نسخ عنوان المحفظة بنجاح! 📋");
-}
-
-function openWithdrawModal() {
-    document.getElementById('withdraw-modal').classList.remove('hidden');
 }
 
 function closeWithdrawModal() {
     document.getElementById('withdraw-modal').classList.add('hidden');
-}
-
-async function submitWithdraw() {
-    const address = document.getElementById('withdraw-address').value.trim();
-    const amount = parseFloat(document.getElementById('withdraw-amount').value);
-    const MIN_WITHDRAW = 5.00; 
-
-    if (!address || isNaN(amount) || amount <= 0) {
-        return alert("يرجى إدخال عنوان المحفظة والمبلغ بشكل صحيح ⚠️");
-    }
-
-    if (amount < MIN_WITHDRAW) {
-        return alert(`الحد الأدنى للسحب هو $ ${MIN_WITHDRAW} ⚠️`);
-    }
-
-    if (amount > player.balance) {
-        return alert("رصيدك الحالي غير كافٍ لإتمام عملية السحب ❌");
-    }
-
-    player.balance -= amount;
-    saveUserData();
-    gameLoop();
-
-    try {
-        await db.from('withdrawals').insert([{
-            user_id: USER_ID,
-            wallet_address: address,
-            amount: amount
-        }]);
-        
-        alert("✅ تم تقديم طلب السحب بنجاح! سيتم تحويل المبلغ بعد المراجعة.");
-        closeWithdrawModal();
-        
-        document.getElementById('withdraw-address').value = '';
-        document.getElementById('withdraw-amount').value = '';
-        
-    } catch (error) {
-        console.error("خطأ في السحب:", error);
-        alert("حدث خطأ أثناء تقديم الطلب، يرجى المحاولة لاحقاً.");
-    }
 }
 
 // 🚀 تشغيل التطبيق
