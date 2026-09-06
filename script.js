@@ -32,6 +32,7 @@ let player = {
     balance: 0,
     lastCollectTime: Date.now( ),
     lastDailyBonus: 0,
+    lastBoxTime: 0, // 🟢 وقت آخر صندوق
     streakDays: 0,
     miners: [0],
     completedTasks: [],
@@ -75,6 +76,7 @@ async function loadUserData() {
             player.balance = data.balance;
             player.lastCollectTime = data.last_collect_time;
             player.lastDailyBonus = data.last_daily_bonus || 0;
+            player.lastBoxTime = data.last_box_time || 0; // 🟢 تحميل وقت الصندوق
             player.streakDays = data.streak_days || 0;
             player.miners = data.miners;
             player.completedTasks = data.completed_tasks || [];
@@ -98,6 +100,7 @@ async function loadUserData() {
                 miners: player.miners,
                 last_collect_time: player.lastCollectTime,
                 last_daily_bonus: player.lastDailyBonus,
+                last_box_time: player.lastBoxTime, // 🟢 حفظ وقت الصندوق
                 streak_days: player.streakDays,
                 completed_tasks: player.completedTasks,
                 referred_by: inviterId
@@ -136,6 +139,7 @@ async function saveUserData() {
         miners: player.miners,
         last_collect_time: player.lastCollectTime,
         last_daily_bonus: player.lastDailyBonus,
+        last_box_time: player.lastBoxTime, // 🟢 تحديث وقت الصندوق
         streak_days: player.streakDays,
         completed_tasks: player.completedTasks
     }).eq('id', USER_ID);
@@ -429,7 +433,7 @@ function buyMiner(minerId) {
 }
 
 /* ==========================================
-   7. نظام السحب الجديد (50$ + 20 إحالة) 🟢
+   7. نظام السحب الجديد (50$ + 20 إحالة)
    ========================================== */
 function handleWithdrawClick() {
     const modal = document.getElementById('withdraw-modal');
@@ -437,7 +441,6 @@ function handleWithdrawClick() {
     
     modal.classList.remove('hidden');
     
-    // الشرط الأول: الوصول إلى 50 دولار
     if (player.balance < 50) {
         const remaining = (50 - player.balance).toFixed(2);
         content.innerHTML = `
@@ -454,7 +457,6 @@ function handleWithdrawClick() {
             </div>
         `;
     } 
-    // الشرط الثاني: دعوة 20 شخص
     else if (player.referralsCount < 20) {
         const remaining = 20 - player.referralsCount;
         content.innerHTML = `
@@ -471,7 +473,6 @@ function handleWithdrawClick() {
             </div>
         `;
     } 
-    // إذا أكمل الشرطين
     else {
         content.innerHTML = `
             <div class="text-center">
@@ -489,6 +490,86 @@ function handleWithdrawClick() {
 
 function closeWithdrawModal() {
     document.getElementById('withdraw-modal').classList.add('hidden');
+}
+
+/* ==========================================
+   8. نظام صناديق الحظ 🎁 🟢
+   ========================================== */
+function openBoxModal() {
+    document.getElementById('box-modal').classList.remove('hidden');
+    resetBoxes();
+    checkBoxCooldown();
+}
+
+function closeBoxModal() {
+    document.getElementById('box-modal').classList.add('hidden');
+}
+
+function resetBoxes() {
+    const boxes = document.querySelectorAll('.box-item');
+    boxes.forEach(box => {
+        box.innerText = '📦';
+        box.style.pointerEvents = 'auto';
+        box.style.opacity = '1';
+    });
+    document.getElementById('box-result').innerText = '';
+}
+
+function checkBoxCooldown() {
+    const now = Date.now();
+    const cooldown = 10 * 60 * 60 * 1000; // 10 ساعات
+    const timeSinceLastBox = now - player.lastBoxTime;
+    const timerElement = document.getElementById('box-timer');
+    const boxes = document.querySelectorAll('.box-item');
+
+    if (timeSinceLastBox < cooldown) {
+        const timeLeft = cooldown - timeSinceLastBox;
+        const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
+        const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        
+        timerElement.innerText = `⏳ الصناديق تتجدد بعد ${hoursLeft} ساعة و ${minutesLeft} دقيقة`;
+        timerElement.classList.remove('hidden');
+        
+        boxes.forEach(box => {
+            box.style.pointerEvents = 'none';
+            box.style.opacity = '0.5';
+        });
+    } else {
+        timerElement.classList.add('hidden');
+    }
+}
+
+function openBox(selectedIndex) {
+    const boxes = document.querySelectorAll('.box-item');
+    const resultElement = document.getElementById('box-result');
+    
+    boxes.forEach(box => box.style.pointerEvents = 'none');
+
+    const isWin = Math.random() > 0.3; // نسبة الفوز 70%
+    
+    if (isWin) {
+        const reward = (Math.random() * (0.1 - 0.001) + 0.001);
+        boxes[selectedIndex].innerText = '💎';
+        resultElement.innerHTML = `<span class="text-green-400">مبروك! ربحت $ ${reward.toFixed(3)}</span>`;
+        
+        player.balance += reward;
+    } else {
+        boxes[selectedIndex].innerText = '💨';
+        resultElement.innerHTML = `<span class="text-gray-400">حظ أوفر! الصندوق فارغ.</span>`;
+    }
+
+    boxes.forEach((box, index) => {
+        if (index !== selectedIndex) {
+            box.innerText = Math.random() > 0.5 ? '💎' : '💨';
+            box.style.opacity = '0.5';
+        }
+    });
+
+    player.lastBoxTime = Date.now();
+    saveUserData();
+    gameLoop();
+    
+    setTimeout(checkBoxCooldown, 3000);
 }
 
 // 🚀 تشغيل التطبيق
