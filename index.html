@@ -26,16 +26,15 @@
         </div>
     </header>
 
-    <!-- ================= صفحة التعدين (الرئيسية  ) ================= -->
+    <!-- ================= صفحة التعدين (الرئيسية ) ================= -->
     <div id="view-home" class="view-section active">
-        <nav class="grid grid-cols-4 gap-3 px-4 mb-6">
+        
+        <!-- 🟢 تم تحويل الأزرار إلى 3 وحذف الإيداع -->
+        <nav class="grid grid-cols-3 gap-3 px-4 mb-6">
             <button id="btn-daily-bonus" class="action-btn">
                 <span class="text-xl mb-1">🎁</span> مكافأة
             </button>
-            <button onclick="openDepositModal()" class="action-btn">
-                <span class="text-xl mb-1">📥</span> إيداع
-            </button>
-            <button onclick="openWithdrawModal()" class="action-btn">
+            <button onclick="handleWithdrawClick()" class="action-btn">
                 <span class="text-xl mb-1">📤</span> سحب
             </button>
             <button class="action-btn" onclick="switchView('referrals', document.getElementById('nav-friends'))">
@@ -136,38 +135,15 @@
 
     <!-- ================= النوافذ المنبثقة (Modals) ================= -->
     
-    <!-- نافذة الإيداع (الجديدة عبر CryptoBot) -->
-    <div id="deposit-modal" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-center justify-center px-4">
-        <div class="btc-card p-6 w-full max-w-sm relative">
-            <button onclick="closeDepositModal()" class="absolute top-3 right-3 text-gray-400 hover:text-white text-xl">&times;</button>
-            <h2 class="text-xl font-bold text-white mb-4 text-center">إيداع رصيد 📥</h2>
-            <p class="text-sm text-gray-400 text-center mb-4">أدخل المبلغ الذي تريد إيداعه (بـ USDT):</p>
-            
-            <div class="mb-6">
-                <input type="number" id="deposit-amount" placeholder="مثال: 10" step="1" class="w-full bg-black/50 border border-gray-700 rounded-lg p-3 text-white text-xl font-bold focus:outline-none focus:border-btc text-center">
-            </div>
-            
-            <button onclick="submitDeposit()" id="btn-deposit-submit" class="w-full bg-btc text-black font-bold py-3 rounded-lg transition shadow-lg">دفع عبر CryptoBot 💳</button>
-        </div>
-    </div>
-
-    <!-- نافذة السحب -->
+    <!-- 🟢 نافذة السحب الجديدة (نظام الدعم الفني وشرط الإحالات) -->
     <div id="withdraw-modal" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-center justify-center px-4">
-        <div class="btc-card p-6 w-full max-w-sm relative">
+        <div class="btc-card p-6 w-full max-w-sm relative text-center">
             <button onclick="closeWithdrawModal()" class="absolute top-3 right-3 text-gray-400 hover:text-white text-xl">&times;</button>
-            <h2 class="text-xl font-bold text-white mb-4 text-center">سحب الأرباح 📤</h2>
+            <h2 class="text-xl font-bold text-white mb-4">سحب الأرباح 📤</h2>
             
-            <div class="mb-4">
-                <label class="text-xs text-gray-400 block mb-1">عنوان محفظة USDT (TRC20) الخاصة بك:</label>
-                <input type="text" id="withdraw-address" placeholder="T..." class="w-full bg-black/50 border border-gray-700 rounded-lg p-3 text-white text-sm focus:outline-none focus:border-btc">
+            <div id="withdraw-content">
+                <!-- سيتم تعبئة المحتوى بواسطة الجافاسكريبت بناءً على عدد الإحالات -->
             </div>
-            
-            <div class="mb-6">
-                <label class="text-xs text-gray-400 block mb-1">المبلغ المراد سحبه (الحد الأدنى 5$):</label>
-                <input type="number" id="withdraw-amount" placeholder="5.00" step="1" class="w-full bg-black/50 border border-gray-700 rounded-lg p-3 text-white text-sm focus:outline-none focus:border-btc">
-            </div>
-            
-            <button onclick="submitWithdraw()" class="w-full bg-white text-black hover:bg-gray-200 font-bold py-3 rounded-lg transition">تأكيد السحب</button>
         </div>
     </div>
 
