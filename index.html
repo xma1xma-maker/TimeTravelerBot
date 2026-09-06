@@ -7,6 +7,8 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- 🟢 مكتبة إعلانات Adsgram -->
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -29,7 +31,6 @@
     <!-- ================= صفحة التعدين (الرئيسية ) ================= -->
     <div id="view-home" class="view-section active">
         
-        <!-- الأزرار العلوية (تمت إضافة زر الصناديق) -->
         <nav class="grid grid-cols-4 gap-3 px-4 mb-6">
             <button onclick="openBoxModal()" class="action-btn">
                 <span class="text-xl mb-1">🎁</span> صناديق
@@ -86,6 +87,25 @@
             <h2 class="text-2xl font-bold text-white">مركز المهام 🎯</h2>
             <p class="text-xs text-gray-400 mt-2">أكمل المهام لربح رصيد إضافي</p>
         </div>
+        
+        <!-- 🟢 مهمة مشاهدة الإعلان الدائمة -->
+        <div class="btc-card p-3 mb-4 border-2 border-blue-500/50">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-blue-900/50 rounded-xl border border-blue-500 flex items-center justify-center text-2xl">
+                    📺
+                </div>
+                <div class="flex-1">
+                    <h4 class="font-bold text-sm text-white">شاهد إعلان واربح</h4>
+                    <p class="text-xs text-btc font-bold mt-1">+ $ 0.05</p>
+                    <p class="text-[10px] text-gray-400 mt-1">📌 يمكنك المشاهدة عدة مرات</p>
+                </div>
+                <div>
+                    <button onclick="showAdsgramAd()" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg text-xs shadow-lg">شاهد</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- المهام الديناميكية من قاعدة البيانات -->
         <div id="tasks-container" class="flex flex-col gap-3"></div>
     </div>
 
