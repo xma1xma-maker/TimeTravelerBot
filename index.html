@@ -13,7 +13,7 @@
 </head>
 <body>
 
-    <!-- الرأس: الرصيد الإجمالي -->
+    <!-- الرأس: الرصيد الإجمالي وصورة المستخدم -->
     <header class="p-4">
         <div class="btc-card p-4 flex justify-between items-center">
             <div>
@@ -22,14 +22,15 @@
                     $ <span id="main-balance">0.00</span>
                 </p>
             </div>
-            <div class="bg-gray-800 pr-1 pl-3 py-1 rounded-full text-sm border border-gray-700 flex items-center gap-2">
-                <img id="user-avatar" src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png" class="w-8 h-8 rounded-full object-cover border border-gray-600">
-                <span id="user-name-display" class="font-bold text-white truncate max-w-[80px]">المعدن</span>
+            <!-- 🟢 تم إضافة مكان صورة واسم المستخدم هنا -->
+            <div class="flex items-center gap-2 bg-gray-800 px-3 py-1.5 rounded-full border border-gray-700 shadow-lg">
+                <img id="user-avatar" src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png" class="w-7 h-7 rounded-full object-cover border border-gray-500">
+                <span id="user-name-display" class="text-sm text-white font-bold max-w-[80px] truncate">المعدن</span>
             </div>
         </div>
     </header>
 
-    <!-- ================= صفحة التعدين (الرئيسية  ) ================= -->
+    <!-- ================= صفحة التعدين (الرئيسية ) ================= -->
     <div id="view-home" class="view-section active">
         
         <nav class="grid grid-cols-4 gap-3 px-4 mb-6">
