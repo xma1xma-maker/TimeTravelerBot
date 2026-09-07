@@ -13,13 +13,14 @@ tg.expand();
 const tgUser = tg.initDataUnsafe?.user;
 const USER_ID = tgUser ? tgUser.id : 123456789; 
 const USER_NAME = tgUser ? tgUser.first_name : 'المعدن'; 
+const USER_PHOTO = tgUser?.photo_url || 'https://cdn-icons-png.flaticon.com/512/3177/3177440.png';
 const START_PARAM = tg.initDataUnsafe?.start_param; 
 
 /* ==========================================
    2. إعدادات قاعدة البيانات
    ========================================== */
 const MINERS_DB = {
-    0: { id: 0, name: "Free Node", cost: 0, monthly: 1, capacityHours: 1, img: "https://tgpwdfegzdicypqfpjym.supabase.co/storage/v1/object/public/tofe/miner0.png" },
+    0: { id: 0, name: "Free Node", cost: 0, monthly: 8, capacityHours: 1, img: "https://tgpwdfegzdicypqfpjym.supabase.co/storage/v1/object/public/tofe/miner0.png" },
     1: { id: 1, name: "Node V1", cost: 8, monthly: 10, capacityHours: 5, img: "https://tgpwdfegzdicypqfpjym.supabase.co/storage/v1/object/public/tofe/miner1.png" },
     2: { id: 2, name: "Server Cluster", cost: 20, monthly: 30, capacityHours: 5, img: "https://tgpwdfegzdicypqfpjym.supabase.co/storage/v1/object/public/tofe/miner2.png" },
     3: { id: 3, name: "ASIC Pro", cost: 50, monthly: 100, capacityHours: 5, img: "https://tgpwdfegzdicypqfpjym.supabase.co/storage/v1/object/public/tofe/miner3.png" },
@@ -59,6 +60,9 @@ preloadImages();
    ========================================== */
 async function loadUserData() {
     try {
+        document.getElementById('user-name-display').innerText = USER_NAME;
+        document.getElementById('user-avatar').src = USER_PHOTO;
+
         const { data: tasksData } = await db.from('tasks').select('*');
         if (tasksData) {
             TASKS_DB = tasksData;
@@ -112,7 +116,7 @@ async function loadUserData() {
         document.getElementById('ref-earnings').innerText = player.referralEarnings.toFixed(2);
 
         calculateStats();
-        setInterval(gameLoop, 1000);
+        setInterval(gameLoop, 100); 
         gameLoop();
     } catch (err) {
         console.error("خطأ في تحميل البيانات:", err);
@@ -242,6 +246,9 @@ function calculateStats() {
         if (miner.capacityHours > maxHours) maxHours = miner.capacityHours;
     });
     
+    document.getElementById('rate-hourly').innerText = totalHourlyRate.toFixed(4);
+    document.getElementById('rate-daily').innerText = (totalHourlyRate * 24).toFixed(2);
+    document.getElementById('rate-monthly').innerText = (totalHourlyRate * 720).toFixed(2);
     document.getElementById('storage-text').innerText = `سعة التخزين: ${maxHours} ساعات`;
     
     renderGrid();
@@ -260,8 +267,8 @@ function gameLoop() {
         isFull = true;
     }
 
-    document.getElementById('main-balance').innerText = player.balance.toFixed(2);
-    document.getElementById('pending-balance').innerText = pending.toFixed(4);
+    document.getElementById('main-balance').innerText = player.balance.toFixed(4); 
+    document.getElementById('pending-balance').innerText = pending.toFixed(8); 
 
     const progressPercent = (pending / maxCapacityBTC) * 100;
     document.getElementById('progress-fill').style.width = `${progressPercent}%`;
@@ -433,7 +440,7 @@ function buyMiner(minerId) {
 }
 
 /* ==========================================
-   7. نظام السحب الجديد (50$ + 20 إحالة)
+   7. نظام السحب الجديد (50$ ثم 20 إحالة)
    ========================================== */
 function handleWithdrawClick() {
     const modal = document.getElementById('withdraw-modal');
@@ -441,6 +448,7 @@ function handleWithdrawClick() {
     
     modal.classList.remove('hidden');
     
+    // 1. التحقق من الرصيد أولاً (لا نجلب سيرة الإحالات هنا أبداً)
     if (player.balance < 50) {
         const remaining = (50 - player.balance).toFixed(2);
         content.innerHTML = `
@@ -449,7 +457,7 @@ function handleWithdrawClick() {
                 <p class="text-gray-300 text-sm mb-4">عذراً، الحد الأدنى للسحب هو 50$.</p>
                 <div class="bg-gray-900 p-3 rounded-lg border border-gray-700 mb-4">
                     <p class="text-xs text-gray-400">رصيدك الحالي: <span class="text-white font-bold text-lg">$ ${player.balance.toFixed(2)}</span></p>
-                    <p class="text-xs text-red-400 mt-1">تحتاج إلى $ ${remaining} إضافية</p>
+                    <p class="text-xs text-red-400 mt-1">تحتاج إلى $ ${remaining} إضافية للوصول للحد الأدنى</p>
                 </div>
                 <button onclick="closeWithdrawModal()" class="w-full bg-gray-700 text-white font-bold py-3 rounded-lg transition shadow-lg">
                     حسناً، سأكمل التعدين ⛏️
@@ -457,15 +465,17 @@ function handleWithdrawClick() {
             </div>
         `;
     } 
+    // 2. إذا وصل 50$، الآن فقط نظهر له شرط الإحالات
     else if (player.referralsCount < 20) {
         const remaining = 20 - player.referralsCount;
         content.innerHTML = `
             <div class="text-center">
                 <div class="text-5xl mb-3">👥</div>
-                <p class="text-gray-300 text-sm mb-4">لقد وصلت للحد الأدنى! لكن يجب عليك دعوة 20 شخصاً على الأقل لتتمكن من السحب.</p>
+                <p class="text-green-400 font-bold text-lg mb-1">ممتاز! لقد جمعت 50$ 💸</p>
+                <p class="text-gray-300 text-sm mb-4">خطوة أخيرة فقط: يجب عليك دعوة 20 شخصاً لتتمكن من سحب أرباحك.</p>
                 <div class="bg-gray-900 p-3 rounded-lg border border-gray-700 mb-4">
                     <p class="text-xs text-gray-400">دعواتك الحالية: <span class="text-white font-bold text-lg">${player.referralsCount}</span> / 20</p>
-                    <p class="text-xs text-red-400 mt-1">متبقي لك ${remaining} دعوات</p>
+                    <p class="text-xs text-red-400 mt-1">متبقي لك ${remaining} دعوات للسحب</p>
                 </div>
                 <button onclick="closeWithdrawModal(); switchView('referrals', document.getElementById('nav-friends'))" class="w-full bg-btc text-black font-bold py-3 rounded-lg transition shadow-lg">
                     اذهب لدعوة الأصدقاء 🚀
@@ -473,6 +483,7 @@ function handleWithdrawClick() {
             </div>
         `;
     } 
+    // 3. إذا أكمل الرصيد والإحالات معاً
     else {
         content.innerHTML = `
             <div class="text-center">
@@ -480,7 +491,7 @@ function handleWithdrawClick() {
                 <p class="text-green-400 font-bold text-lg mb-2">تهانينا! لقد أكملت جميع الشروط.</p>
                 <p class="text-gray-300 text-sm mb-4">رصيدك الحالي هو: <span class="text-btc font-bold">$ ${player.balance.toFixed(2)}</span></p>
                 <p class="text-xs text-gray-400 mb-4">يرجى مراسلة الدعم الفني وتزويدهم بعنوان محفظتك (USDT TRC20) لإرسال الأرباح إليك.</p>
-                <button onclick="window.open('https://t.me/${SUPPORT_USERNAME}', '_blank' )" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg transition shadow-lg">
+                <button onclick="window.open('https://t.me/${SUPPORT_USERNAME}', '_blank'  )" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg transition shadow-lg">
                     مراسلة الدعم الفني 💬
                 </button>
             </div>
@@ -575,7 +586,7 @@ function openBox(selectedIndex) {
 /* ==========================================
    9. نظام إعلانات Adsgram 📺
    ========================================== */
-const ADSGRAM_BLOCK_ID = "46546"; // 🔴 تم وضع الـ Block ID الخاص بك
+const ADSGRAM_BLOCK_ID = "46546"; 
 
 const AdController = window.Adsgram ? window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID }) : null;
 
