@@ -446,6 +446,7 @@ function handleWithdrawClick() {
     
     modal.classList.remove('hidden');
     
+    // 1. التحقق من الرصيد أولاً (لا نجلب سيرة الإحالات هنا أبداً)
     if (player.balance < 50) {
         const remaining = (50 - player.balance).toFixed(2);
         content.innerHTML = `
@@ -462,6 +463,7 @@ function handleWithdrawClick() {
             </div>
         `;
     } 
+    // 2. إذا وصل 50$، الآن فقط نظهر له شرط الإحالات
     else if (player.referralsCount < 20) {
         const remaining = 20 - player.referralsCount;
         content.innerHTML = `
@@ -479,6 +481,7 @@ function handleWithdrawClick() {
             </div>
         `;
     } 
+    // 3. إذا أكمل الرصيد والإحالات معاً
     else {
         content.innerHTML = `
             <div class="text-center">
@@ -486,7 +489,7 @@ function handleWithdrawClick() {
                 <p class="text-green-400 font-bold text-lg mb-2">تهانينا! لقد أكملت جميع الشروط.</p>
                 <p class="text-gray-300 text-sm mb-4">رصيدك الحالي هو: <span class="text-btc font-bold">$ ${player.balance.toFixed(2)}</span></p>
                 <p class="text-xs text-gray-400 mb-4">يرجى مراسلة الدعم الفني وتزويدهم بعنوان محفظتك (USDT TRC20) لإرسال الأرباح إليك.</p>
-                <button onclick="window.open('https://t.me/${SUPPORT_USERNAME}', '_blank'   )" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg transition shadow-lg">
+                <button onclick="window.open('https://t.me/${SUPPORT_USERNAME}', '_blank' )" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg transition shadow-lg">
                     مراسلة الدعم الفني 💬
                 </button>
             </div>
@@ -547,8 +550,7 @@ function checkBoxCooldown() {
 
 function openBox(selectedIndex) {
     const boxes = document.querySelectorAll('.box-item');
-    const resultElement = document.getElementById
-('box-result');
+    const resultElement = document.getElementById('box-result');
     
     boxes.forEach(box => box.style.pointerEvents = 'none');
 
