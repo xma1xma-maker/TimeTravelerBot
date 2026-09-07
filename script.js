@@ -10,6 +10,16 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const tg = window.Telegram.WebApp;
 tg.expand();
+
+// 🟢 تحويل جميع الإشعارات المزعجة إلى إشعارات تليجرام الاحترافية
+window.alert = function(message) {
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.showAlert) {
+        window.Telegram.WebApp.showAlert(message);
+    } else {
+        console.log(message);
+    }
+};
+
 const tgUser = tg.initDataUnsafe?.user;
 const USER_ID = tgUser ? tgUser.id : 123456789; 
 const USER_NAME = tgUser ? tgUser.first_name : 'المعدن'; 
