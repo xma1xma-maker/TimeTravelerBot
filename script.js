@@ -4,7 +4,7 @@
 const SUPABASE_URL = 'https://tgpwdfegzdicypqfpjym.supabase.co'; 
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRncHdkZmVnemRpY3lwcWZwanltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MjMzODMsImV4cCI6MjEwNDA5OTM4M30.wFodcxwYL4KbiR09__Esi6C8du0nB5R54oIio8gdvMk'; 
 const BOT_USERNAME = 'BitPMinerbot'; 
-const SUPPORT_USERNAME = 'YOUR_SUPPORT_USERNAME'; // 🔴 ضع يوزر حساب الدعم الفني هنا (بدون @ )
+const SUPPORT_USERNAME = 'YOUR_SUPPORT_USERNAME'; // 🔴 ضع يوزر حساب الدعم الفني هنا (بدون @  )
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -31,7 +31,7 @@ let TASKS_DB = [];
 
 let player = {
     balance: 0,
-    lastCollectTime: Date.now( ),
+    lastCollectTime: Date.now(  ),
     lastDailyBonus: 0,
     lastBoxTime: 0,
     streakDays: 0,
@@ -67,7 +67,7 @@ async function loadUserData() {
         if (tasksData) {
             TASKS_DB = tasksData;
             TASKS_DB.forEach(task => {
-                if (task.icon && (task.icon.startsWith('http' ) || task.icon.startsWith('images/'))) {
+                if (task.icon && (task.icon.startsWith('http'  ) || task.icon.startsWith('images/'))) {
                     const img = new Image();
                     img.src = task.icon;
                 }
@@ -112,7 +112,7 @@ async function loadUserData() {
         }
 
         document.getElementById('invite-link').innerText = `https://t.me/${BOT_USERNAME}/app?startapp=${USER_ID}`;
-        document.getElementById('ref-count' ).innerText = player.referralsCount;
+        document.getElementById('ref-count'  ).innerText = player.referralsCount;
         document.getElementById('ref-earnings').innerText = player.referralEarnings.toFixed(2);
 
         calculateStats();
@@ -203,7 +203,7 @@ function renderTasks() {
         const isCompleted = player.completedTasks.includes(task.id);
         
         let iconHtml = '';
-        if (task.icon && (task.icon.startsWith('http' ) || task.icon.startsWith('images/'))) {
+        if (task.icon && (task.icon.startsWith('http'  ) || task.icon.startsWith('images/'))) {
             iconHtml = `<img src="${task.icon}" class="w-8 h-8 object-contain drop-shadow-md">`;
         } else {
             iconHtml = task.icon || '🎯';
@@ -246,9 +246,7 @@ function calculateStats() {
         if (miner.capacityHours > maxHours) maxHours = miner.capacityHours;
     });
     
-    document.getElementById('rate-hourly').innerText = totalHourlyRate.toFixed(4);
-    document.getElementById('rate-daily').innerText = (totalHourlyRate * 24).toFixed(2);
-    document.getElementById('rate-monthly').innerText = (totalHourlyRate * 720).toFixed(2);
+    // 🟢 تم حذف الأسطر التي كانت تسبب توقف الكود هنا
     document.getElementById('storage-text').innerText = `سعة التخزين: ${maxHours} ساعات`;
     
     renderGrid();
@@ -302,7 +300,7 @@ function copyInviteLink() {
 function shareInviteLink() {
     const link = document.getElementById('invite-link').innerText;
     const text = "انضم إلي في التعدين واربح الدولارات مجاناً! 🚀💰";
-    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link )}&text=${encodeURIComponent(text)}`;
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link  )}&text=${encodeURIComponent(text)}`;
     
     if (window.Telegram && window.Telegram.WebApp) {
         window.Telegram.WebApp.openTelegramLink(shareUrl);
@@ -448,7 +446,6 @@ function handleWithdrawClick() {
     
     modal.classList.remove('hidden');
     
-    // 1. التحقق من الرصيد أولاً (لا نجلب سيرة الإحالات هنا أبداً)
     if (player.balance < 50) {
         const remaining = (50 - player.balance).toFixed(2);
         content.innerHTML = `
@@ -465,7 +462,6 @@ function handleWithdrawClick() {
             </div>
         `;
     } 
-    // 2. إذا وصل 50$، الآن فقط نظهر له شرط الإحالات
     else if (player.referralsCount < 20) {
         const remaining = 20 - player.referralsCount;
         content.innerHTML = `
@@ -483,7 +479,6 @@ function handleWithdrawClick() {
             </div>
         `;
     } 
-    // 3. إذا أكمل الرصيد والإحالات معاً
     else {
         content.innerHTML = `
             <div class="text-center">
@@ -491,7 +486,7 @@ function handleWithdrawClick() {
                 <p class="text-green-400 font-bold text-lg mb-2">تهانينا! لقد أكملت جميع الشروط.</p>
                 <p class="text-gray-300 text-sm mb-4">رصيدك الحالي هو: <span class="text-btc font-bold">$ ${player.balance.toFixed(2)}</span></p>
                 <p class="text-xs text-gray-400 mb-4">يرجى مراسلة الدعم الفني وتزويدهم بعنوان محفظتك (USDT TRC20) لإرسال الأرباح إليك.</p>
-                <button onclick="window.open('https://t.me/${SUPPORT_USERNAME}', '_blank'  )" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg transition shadow-lg">
+                <button onclick="window.open('https://t.me/${SUPPORT_USERNAME}', '_blank'   )" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg transition shadow-lg">
                     مراسلة الدعم الفني 💬
                 </button>
             </div>
@@ -552,7 +547,8 @@ function checkBoxCooldown() {
 
 function openBox(selectedIndex) {
     const boxes = document.querySelectorAll('.box-item');
-    const resultElement = document.getElementById('box-result');
+    const resultElement = document.getElementById
+('box-result');
     
     boxes.forEach(box => box.style.pointerEvents = 'none');
 
