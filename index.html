@@ -11,14 +11,14 @@
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="bg-gray-900 text-white pb-20">
 
     <!-- الرأس: الرصيد الإجمالي وصورة المستخدم -->
     <header class="p-4">
         <div class="btc-card p-4 flex justify-between items-center">
             <div>
-                <p class="text-xs text-gray-400 font-bold mb-1">رصيد الكوينز</p>
-                <p class="text-2xl font-bold text-yellow-400">
+                <p class="text-xs text-gray-400 font-bold mb-1">رصيد الجواهر</p>
+                <p class="text-2xl font-bold text-blue-400">
                     💎 <span id="main-balance">0.00</span>
                 </p>
             </div>
@@ -42,7 +42,6 @@
             <button id="btn-daily-bonus" class="action-btn">
                 <span class="text-xl mb-1">📅</span> مكافأة
             </button>
-            <!-- 🟢 تم تغيير زر السحب إلى تحويل -->
             <button onclick="handleWithdrawClick()" class="action-btn">
                 <span class="text-xl mb-1">💱</span> تحويل
             </button>
@@ -53,24 +52,24 @@
 
         <section class="px-4 mb-8">
             <div class="btc-card p-5 text-center relative">
-                <h3 class="font-bold text-gray-400 text-sm">الكوينز المستحقة</h3>
+                <h3 class="font-bold text-gray-400 text-sm">الجواهر المستحقة</h3>
                 <p class="text-4xl font-bold mt-2 mb-4 text-white">
-                    <span class="text-2xl text-yellow-400">💎</span> <span id="pending-balance">0.00000000</span>
+                    <span class="text-2xl text-blue-400">💎</span> <span id="pending-balance">0.00000000</span>
                 </p>
                 
                 <div class="mb-5 text-right">
                     <div class="flex justify-between text-[10px] font-bold mb-1">
                         <span id="storage-text" class="text-gray-400">سعة التخزين: 1 ساعة</span>
-                        <span id="progress-text" class="text-yellow-400">0%</span>
+                        <span id="progress-text" class="text-blue-400">0%</span>
                     </div>
                     <div class="progress-bg">
-                        <div id="progress-fill" class="progress-fill bg-yellow-400"></div>
+                        <div id="progress-fill" class="progress-fill bg-blue-500"></div>
                     </div>
                     <p id="storage-warning" class="text-[10px] text-gray-500 mt-1 text-center">يستمر التجميع حتى يمتلئ الخزان</p>
                 </div>
 
-                <button id="btn-collect" class="btn-collect w-full font-bold py-3 rounded-xl text-lg shadow-lg bg-yellow-500 hover:bg-yellow-400 text-black">
-                    جمع الكوينز
+                <button id="btn-collect" class="btn-collect w-full font-bold py-3 rounded-xl text-lg shadow-lg bg-blue-600 hover:bg-blue-500 text-white">
+                    جمع الجواهر
                 </button>
             </div>
         </section>
@@ -86,11 +85,42 @@
         </section>
     </div>
 
+    <!-- ================= صفحة الألعاب (تحدي النقر) ================= -->
+    <div id="view-games" class="view-section hidden px-4 mb-10">
+        <div class="text-center mb-6 mt-2">
+            <h2 class="text-2xl font-bold text-white">تحدي النقر 🎮</h2>
+            <p class="text-xs text-gray-400 mt-2">انقر على الجوهرة بأسرع ما يمكن خلال 15 ثانية!</p>
+        </div>
+        
+        <div class="btc-card p-6 text-center relative overflow-hidden h-72 flex flex-col items-center justify-center border-2 border-blue-500/30">
+            <!-- شاشة البداية -->
+            <div id="game-start-screen">
+                <div class="text-6xl mb-4">⏱️</div>
+                <button onclick="startMiniGame()" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-full text-lg shadow-[0_0_15px_rgba(37,99,235,0.5)] animate-pulse">
+                    ابدأ التحدي 🚀
+                </button>
+                <p class="text-[10px] text-gray-400 mt-4">يمكنك اللعب مرة واحدة كل ساعة</p>
+            </div>
+
+            <!-- شاشة اللعب -->
+            <div id="game-play-screen" class="hidden w-full h-full relative">
+                <div class="flex justify-between w-full px-2 absolute top-0 left-0 z-10">
+                    <span class="text-white font-bold bg-black/50 px-2 py-1 rounded">الوقت: <span id="game-timer" class="text-red-400">15</span></span>
+                    <span class="text-white font-bold bg-black/50 px-2 py-1 rounded">النقرات: <span id="game-score" class="text-blue-400">0</span></span>
+                </div>
+                <!-- الجوهرة التي سيتم النقر عليها -->
+                <div id="tap-target" onclick="tapCoin()" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer active:scale-75 transition-transform select-none">
+                    <div class="text-6xl drop-shadow-[0_0_15px_rgba(96,165,250,0.8)]">💎</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ================= صفحة المهام ================= -->
     <div id="view-tasks" class="view-section hidden px-4 mb-10">
         <div class="text-center mb-6 mt-2">
             <h2 class="text-2xl font-bold text-white">مركز المهام 🎯</h2>
-            <p class="text-xs text-gray-400 mt-2">أكمل المهام لربح كوينز إضافية</p>
+            <p class="text-xs text-gray-400 mt-2">أكمل المهام لربح جواهر إضافية</p>
         </div>
         
         <div class="btc-card p-3 mb-4 border-2 border-blue-500/50">
@@ -100,7 +130,7 @@
                 </div>
                 <div class="flex-1">
                     <h4 class="font-bold text-sm text-white">شاهد إعلان واربح</h4>
-                    <p class="text-xs text-yellow-400 font-bold mt-1">+ 💎 0.001</p>
+                    <p class="text-xs text-blue-400 font-bold mt-1">+ 💎 0.001</p>
                     <p class="text-[10px] text-gray-400 mt-1">📌 يمكنك المشاهدة عدة مرات</p>
                 </div>
                 <div>
@@ -122,12 +152,12 @@
         <div class="btc-card p-5 text-center mb-6">
             <h3 class="text-sm text-gray-400 font-bold mb-2">رابط الدعوة الخاص بك</h3>
             <div class="bg-gray-900 p-3 rounded-lg border border-gray-700 mb-4 overflow-hidden">
-                <p id="invite-link" class="text-xs text-yellow-400 font-bold truncate">جاري التحميل...</p>
+                <p id="invite-link" class="text-xs text-blue-400 font-bold truncate">جاري التحميل...</p>
             </div>
-            <button onclick="copyInviteLink()" class="btn-collect w-full font-bold py-3 rounded-xl text-sm shadow-lg mb-2 bg-yellow-500 text-black">
+            <button onclick="copyInviteLink()" class="btn-collect w-full font-bold py-3 rounded-xl text-sm shadow-lg mb-2 bg-blue-600 text-white">
                 نسخ الرابط 📋
             </button>
-            <button onclick="shareInviteLink()" class="bg-blue-600 text-white w-full font-bold py-3 rounded-xl text-sm shadow-lg">
+            <button onclick="shareInviteLink()" class="bg-gray-700 text-white w-full font-bold py-3 rounded-xl text-sm shadow-lg">
                 مشاركة عبر تليجرام ✈️
             </button>
         </div>
@@ -139,23 +169,22 @@
             </div>
             <div class="btc-card p-4 text-center">
                 <p class="text-xs text-gray-400 font-bold mb-1">أرباح الدعوات</p>
-                <p class="text-xl font-bold text-yellow-400">💎 <span id="ref-earnings">0.00</span></p>
+                <p class="text-xl font-bold text-blue-400">💎 <span id="ref-earnings">0.00</span></p>
             </div>
         </div>
     </div>
 
     <!-- ================= النوافذ المنبثقة (Modals) ================= -->
     
-    <!-- نافذة التحويل (بدلاً من السحب) 💱 -->
+    <!-- نافذة التحويل 💱 -->
     <div id="withdraw-modal" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-center justify-center px-4">
         <div class="btc-card p-6 w-full max-w-sm relative text-center">
             <button onclick="closeWithdrawModal()" class="absolute top-3 right-3 text-gray-400 hover:text-white text-xl">&times;</button>
-            <h2 class="text-xl font-bold text-white mb-2">تحويل الكوينز 💱</h2>
+            <h2 class="text-xl font-bold text-white mb-2">تحويل الجواهر 💱</h2>
             <p class="text-xs text-green-400 font-bold mb-4 bg-green-900/30 py-1 rounded">سعر الصرف: 1 💎 = 1 $ (USDT)</p>
             
             <div id="withdraw-content"></div>
 
-            <!-- 🟢 زر قناة الإثباتات الخاصة بك -->
             <div class="mt-6 pt-4 border-t border-gray-700">
                 <p class="text-xs text-gray-400 mb-2">هل تريد التأكد من مصداقيتنا؟</p>
                 <a href="https://t.me/+hpqI8A3odIRmMTgy" target="_blank" class="inline-block w-full bg-gray-800 border border-gray-600 text-blue-400 font-bold py-2 rounded-lg text-sm transition hover:bg-gray-700">
@@ -196,18 +225,22 @@
     </div>
 
     <!-- ================= شريط التنقل السفلي ================= -->
-    <nav class="bottom-nav fixed bottom-0 w-full flex justify-around items-center p-2 z-50">
+    <nav class="bottom-nav fixed bottom-0 w-full flex justify-around items-center p-2 z-50 bg-gray-900 border-t border-gray-800">
         <div class="nav-item active" id="nav-home" onclick="switchView('home', this)">
-            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-            <span>اللعبة</span>
+            <span class="text-2xl mb-1">⛏️</span>
+            <span class="text-xs">التعدين</span>
+        </div>
+        <div class="nav-item" id="nav-games" onclick="switchView('games', this)">
+            <span class="text-2xl mb-1">🎮</span>
+            <span class="text-xs">الألعاب</span>
         </div>
         <div class="nav-item" id="nav-tasks" onclick="switchView('tasks', this)">
-            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
-            <span>المهام</span>
+            <span class="text-2xl mb-1">🎯</span>
+            <span class="text-xs">المهام</span>
         </div>
         <div class="nav-item" id="nav-friends" onclick="switchView('referrals', this)">
-            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-            <span>الأصدقاء</span>
+            <span class="text-2xl mb-1">👥</span>
+            <span class="text-xs">الأصدقاء</span>
         </div>
     </nav>
 
