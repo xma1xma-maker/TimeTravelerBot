@@ -4,7 +4,7 @@
 const SUPABASE_URL = 'https://tgpwdfegzdicypqfpjym.supabase.co'; 
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRncHdkZmVnemRpY3lwcWZwanltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MjMzODMsImV4cCI6MjEwNDA5OTM4M30.wFodcxwYL4KbiR09__Esi6C8du0nB5R54oIio8gdvMk'; 
 const BOT_USERNAME = 'BitPMinerbot'; 
-const SUPPORT_USERNAME = 'hamsterze'; // 🔴 ضع يوزر حساب الدعم الفني هنا (بدون @ )
+const SUPPORT_USERNAME = 'hamsterze'; // 🔴 ضع يوزر حساب الدعم الفني هنا (بدون @  )
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -22,7 +22,7 @@ window.alert = function(message) {
 
 const tgUser = tg.initDataUnsafe?.user;
 const USER_ID = tgUser ? tgUser.id : 123456789; 
-const USER_NAME = tgUser ? tgUser.first_name : 'المعدن'; 
+const USER_NAME = tgUser ? tgUser.first_name : 'اللاعب'; 
 const USER_PHOTO = tgUser?.photo_url || 'https://cdn-icons-png.flaticon.com/512/3177/3177440.png';
 const START_PARAM = tg.initDataUnsafe?.start_param; 
 
@@ -184,10 +184,10 @@ function renderShop() {
             shop.innerHTML += `
                 <div class="btc-card p-4 text-center relative opacity-60">
                     <p class="text-gray-400 text-[10px] font-bold uppercase">الدخل الشهري</p>
-                    <p class="text-btc font-bold text-xl mt-1">$ ${miner.monthly}</p>
+                    <p class="text-yellow-400 font-bold text-xl mt-1">🪙 ${miner.monthly}</p>
                     <img src="${miner.img}" class="w-16 h-16 mx-auto my-3 grayscale">
                     <div class="absolute inset-0 flex items-center justify-center z-10">
-                        <div class="bg-black/80 text-btc font-bold px-4 py-1 rounded-full border border-orange-500/50 transform -rotate-12">مكتمل ✓</div>
+                        <div class="bg-black/80 text-yellow-400 font-bold px-4 py-1 rounded-full border border-orange-500/50 transform -rotate-12">مكتمل ✓</div>
                     </div>
                 </div>
             `;
@@ -195,9 +195,9 @@ function renderShop() {
             shop.innerHTML += `
                 <div class="btc-card p-4 text-center">
                     <p class="text-gray-400 text-[10px] font-bold uppercase">الدخل الشهري</p>
-                    <p class="text-btc font-bold text-xl mt-1">$ ${miner.monthly}</p>
+                    <p class="text-yellow-400 font-bold text-xl mt-1">🪙 ${miner.monthly}</p>
                     <img src="${miner.img}" class="w-16 h-16 mx-auto my-3 drop-shadow-[0_0_10px_rgba(247,147,26,0.2)]">
-                    <button onclick="buyMiner(${i})" class="w-full bg-white text-black hover:bg-gray-200 font-bold py-2 rounded-lg text-sm transition">شراء بـ ${miner.cost} $</button>
+                    <button onclick="buyMiner(${i})" class="w-full bg-white text-black hover:bg-gray-200 font-bold py-2 rounded-lg text-sm transition">شراء بـ ${miner.cost} 🪙</button>
                 </div>
             `;
         }
@@ -229,7 +229,7 @@ function renderTasks() {
                     </div>
                     <div class="flex-1">
                         <h4 class="font-bold text-sm text-white">${task.title}</h4>
-                        <p class="text-xs text-btc font-bold mt-1">+ $ ${task.reward}</p>
+                        <p class="text-xs text-yellow-400 font-bold mt-1">+ 🪙 ${task.reward}</p>
                         ${noteHtml}
                     </div>
                     <div>
@@ -308,7 +308,7 @@ function copyInviteLink() {
 
 function shareInviteLink() {
     const link = document.getElementById('invite-link').innerText;
-    const text = "انضم إلي في التعدين واربح الدولارات مجاناً! 🚀💰";
+    const text = "انضم إلي في اللعبة واجمع الكوينز مجاناً! 🚀🪙";
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link )}&text=${encodeURIComponent(text)}`;
     
     if (window.Telegram && window.Telegram.WebApp) {
@@ -376,7 +376,7 @@ function completeTask(task) {
     saveUserData();
     gameLoop();
     renderTasks();
-    alert(`تم التحقق بنجاح! حصلت على $ ${task.reward} 🎉`);
+    alert(`تم التحقق بنجاح! حصلت على 🪙 ${task.reward} 🎉`);
 }
 
 document.getElementById('btn-collect').addEventListener('click', () => {
@@ -392,7 +392,7 @@ document.getElementById('btn-collect').addEventListener('click', () => {
         saveUserData();
         gameLoop();
     } else {
-        alert(`عذراً! الحد الأدنى للجمع هو $ ${MIN_COLLECT}.`);
+        alert(`عذراً! الحد الأدنى للجمع هو 🪙 ${MIN_COLLECT}.`);
     }
 });
 
@@ -424,7 +424,7 @@ document.getElementById('btn-daily-bonus').addEventListener('click', () => {
         saveUserData();
         gameLoop();
         
-        alert(`🎉 مبروك! حصلت على مكافأة اليوم ${player.streakDays}\nقيمة المكافأة: $ ${reward.toFixed(2)}\n\nعد غداً لزيادة مكافأتك!`);
+        alert(`🎉 مبروك! حصلت على مكافأة اليوم ${player.streakDays}\nقيمة المكافأة: 🪙 ${reward.toFixed(2)}\n\nعد غداً لزيادة مكافأتك!`);
     } else {
         const timeLeft = cooldown - timeSinceLastBonus;
         const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
@@ -442,12 +442,12 @@ function buyMiner(minerId) {
         calculateStats();
         saveUserData();
     } else {
-        alert(`رصيدك غير كافٍ! تحتاج إلى $ ${miner.cost}`);
+        alert(`رصيدك غير كافٍ! تحتاج إلى 🪙 ${miner.cost}`);
     }
 }
 
 /* ==========================================
-   7. نظام السحب الجديد (50$ ثم 20 إحالة)
+   7. نظام التحويل الجديد (50 كوين ثم 20 إحالة)
    ========================================== */
 function handleWithdrawClick() {
     const modal = document.getElementById('withdraw-modal');
@@ -460,13 +460,13 @@ function handleWithdrawClick() {
         content.innerHTML = `
             <div class="text-center">
                 <div class="text-5xl mb-3">⚠️</div>
-                <p class="text-gray-300 text-sm mb-4">عذراً، الحد الأدنى للسحب هو 50$.</p>
+                <p class="text-gray-300 text-sm mb-4">عذراً، الحد الأدنى للتحويل هو 50 🪙.</p>
                 <div class="bg-gray-900 p-3 rounded-lg border border-gray-700 mb-4">
-                    <p class="text-xs text-gray-400">رصيدك الحالي: <span class="text-white font-bold text-lg">$ ${player.balance.toFixed(2)}</span></p>
-                    <p class="text-xs text-red-400 mt-1">تحتاج إلى $ ${remaining} إضافية للوصول للحد الأدنى</p>
+                    <p class="text-xs text-gray-400">رصيدك الحالي: <span class="text-white font-bold text-lg">🪙 ${player.balance.toFixed(2)}</span></p>
+                    <p class="text-xs text-red-400 mt-1">تحتاج إلى 🪙 ${remaining} إضافية للوصول للحد الأدنى</p>
                 </div>
                 <button onclick="closeWithdrawModal()" class="w-full bg-gray-700 text-white font-bold py-3 rounded-lg transition shadow-lg">
-                    حسناً، سأكمل التعدين ⛏️
+                    حسناً، سأكمل اللعب 🎮
                 </button>
             </div>
         `;
@@ -476,13 +476,13 @@ function handleWithdrawClick() {
         content.innerHTML = `
             <div class="text-center">
                 <div class="text-5xl mb-3">👥</div>
-                <p class="text-green-400 font-bold text-lg mb-1">ممتاز! لقد جمعت 50$ 💸</p>
-                <p class="text-gray-300 text-sm mb-4">خطوة أخيرة فقط: يجب عليك دعوة 20 شخصاً لتتمكن من سحب أرباحك.</p>
+                <p class="text-green-400 font-bold text-lg mb-1">ممتاز! لقد جمعت 50 🪙 💸</p>
+                <p class="text-gray-300 text-sm mb-4">خطوة أخيرة فقط: يجب عليك دعوة 20 شخصاً لتتمكن من تحويل الكوينز.</p>
                 <div class="bg-gray-900 p-3 rounded-lg border border-gray-700 mb-4">
                     <p class="text-xs text-gray-400">دعواتك الحالية: <span class="text-white font-bold text-lg">${player.referralsCount}</span> / 20</p>
-                    <p class="text-xs text-red-400 mt-1">متبقي لك ${remaining} دعوات للسحب</p>
+                    <p class="text-xs text-red-400 mt-1">متبقي لك ${remaining} دعوات للتحويل</p>
                 </div>
-                <button onclick="closeWithdrawModal(); switchView('referrals', document.getElementById('nav-friends'))" class="w-full bg-btc text-black font-bold py-3 rounded-lg transition shadow-lg">
+                <button onclick="closeWithdrawModal(); switchView('referrals', document.getElementById('nav-friends'))" class="w-full bg-yellow-500 text-black font-bold py-3 rounded-lg transition shadow-lg">
                     اذهب لدعوة الأصدقاء 🚀
                 </button>
             </div>
@@ -493,8 +493,8 @@ function handleWithdrawClick() {
             <div class="text-center">
                 <div class="text-5xl mb-3">🎉</div>
                 <p class="text-green-400 font-bold text-lg mb-2">تهانينا! لقد أكملت جميع الشروط.</p>
-                <p class="text-gray-300 text-sm mb-4">رصيدك الحالي هو: <span class="text-btc font-bold">$ ${player.balance.toFixed(2)}</span></p>
-                <p class="text-xs text-gray-400 mb-4">يرجى مراسلة الدعم الفني وتزويدهم بعنوان محفظتك (USDT TRC20) لإرسال الأرباح إليك.</p>
+                <p class="text-gray-300 text-sm mb-4">رصيدك الحالي هو: <span class="text-yellow-400 font-bold">🪙 ${player.balance.toFixed(2)}</span></p>
+                <p class="text-xs text-gray-400 mb-4">يرجى مراسلة الدعم الفني وتزويدهم بعنوان محفظتك (USDT TRC20) لتحويل الكوينز إلى دولارات وإرسالها إليك.</p>
                 <button onclick="window.open('https://t.me/${SUPPORT_USERNAME}', '_blank' )" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg transition shadow-lg">
                     مراسلة الدعم الفني 💬
                 </button>
@@ -565,7 +565,7 @@ function openBox(selectedIndex) {
     if (isWin) {
         const reward = (Math.random() * (0.1 - 0.001) + 0.001);
         boxes[selectedIndex].innerText = '💎';
-        resultElement.innerHTML = `<span class="text-green-400">مبروك! ربحت $ ${reward.toFixed(3)}</span>`;
+        resultElement.innerHTML = `<span class="text-green-400">مبروك! ربحت 🪙 ${reward.toFixed(3)}</span>`;
         
         player.balance += reward;
     } else {
@@ -590,7 +590,7 @@ function openBox(selectedIndex) {
 /* ==========================================
    9. نظام إعلانات Adsgram 📺
    ========================================== */
-const ADSGRAM_BLOCK_ID = "46546"; 
+const ADSGRAM_BLOCK_ID = "46795"; 
 
 const AdController = window.Adsgram ? window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID }) : null;
 
@@ -605,7 +605,7 @@ function showAdsgramAd() {
         player.balance += reward;
         saveUserData();
         gameLoop();
-        alert(`🎉 شكراً لمشاهدة الإعلان! تمت إضافة $ ${reward} إلى رصيدك.`);
+        alert(`🎉 شكراً لمشاهدة الإعلان! تمت إضافة 🪙 ${reward} إلى رصيدك.`);
     }).catch((result) => {
         alert("⚠️ يجب عليك مشاهدة الإعلان بالكامل للحصول على المكافأة.");
     });
@@ -634,7 +634,7 @@ async function openLeaderboardModal() {
         const colors = ['border-yellow-400', 'border-gray-300', 'border-orange-400'];
 
         topUsers.forEach((user, index) => {
-            const name = user.first_name || 'معدن مجهول';
+            const name = user.first_name || 'لاعب مجهول';
             const balance = (user.balance || 0).toFixed(2);
             
             content.innerHTML += `
@@ -643,7 +643,7 @@ async function openLeaderboardModal() {
                         <span class="text-3xl">${medals[index]}</span>
                         <span class="text-white font-bold text-sm">${name}</span>
                     </div>
-                    <span class="text-btc font-bold">$ ${balance}</span>
+                    <span class="text-yellow-400 font-bold">🪙 ${balance}</span>
                 </div>
             `;
         });
@@ -664,3 +664,4 @@ function closeLeaderboardModal() {
 
 // 🚀 تشغيل التطبيق
 loadUserData();
+
