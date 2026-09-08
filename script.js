@@ -4,7 +4,7 @@
 const SUPABASE_URL = 'https://tgpwdfegzdicypqfpjym.supabase.co'; 
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRncHdkZmVnemRpY3lwcWZwanltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MjMzODMsImV4cCI6MjEwNDA5OTM4M30.wFodcxwYL4KbiR09__Esi6C8du0nB5R54oIio8gdvMk'; 
 const BOT_USERNAME = 'BitPMinerbot'; 
-const SUPPORT_USERNAME = 'hamsterze'; // 🔴 ضع يوزر حساب الدعم الفني هنا (بدون @   )
+const SUPPORT_USERNAME = 'hamsterze'; // 🔴 ضع يوزر حساب الدعم الفني هنا (بدون @ )
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -41,7 +41,7 @@ let TASKS_DB = [];
 
 let player = {
     balance: 0,
-    lastCollectTime: Date.now(  ),
+    lastCollectTime: Date.now( ),
     lastDailyBonus: 0,
     lastBoxTime: 0,
     streakDays: 0,
@@ -77,7 +77,7 @@ async function loadUserData() {
         if (tasksData) {
             TASKS_DB = tasksData;
             TASKS_DB.forEach(task => {
-                if (task.icon && (task.icon.startsWith('http'  ) || task.icon.startsWith('images/'))) {
+                if (task.icon && (task.icon.startsWith('http' ) || task.icon.startsWith('images/'))) {
                     const img = new Image();
                     img.src = task.icon;
                 }
@@ -122,7 +122,7 @@ async function loadUserData() {
         }
 
         document.getElementById('invite-link').innerText = `https://t.me/${BOT_USERNAME}/app?startapp=${USER_ID}`;
-        document.getElementById('ref-count'  ).innerText = player.referralsCount;
+        document.getElementById('ref-count' ).innerText = player.referralsCount;
         document.getElementById('ref-earnings').innerText = player.referralEarnings.toFixed(2);
 
         calculateStats();
@@ -213,7 +213,7 @@ function renderTasks() {
         const isCompleted = player.completedTasks.includes(task.id);
         
         let iconHtml = '';
-        if (task.icon && (task.icon.startsWith('http'  ) || task.icon.startsWith('images/'))) {
+        if (task.icon && (task.icon.startsWith('http' ) || task.icon.startsWith('images/'))) {
             iconHtml = `<img src="${task.icon}" class="w-8 h-8 object-contain drop-shadow-md">`;
         } else {
             iconHtml = task.icon || '🎯';
@@ -309,7 +309,7 @@ function copyInviteLink() {
 function shareInviteLink() {
     const link = document.getElementById('invite-link').innerText;
     const text = "انضم إلي في اللعبة واجمع الكوينز مجاناً! 🚀💎";
-    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link  )}&text=${encodeURIComponent(text)}`;
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link )}&text=${encodeURIComponent(text)}`;
     
     if (window.Telegram && window.Telegram.WebApp) {
         window.Telegram.WebApp.openTelegramLink(shareUrl);
@@ -387,10 +387,14 @@ document.getElementById('btn-collect').addEventListener('click', () => {
     const MIN_COLLECT = 0.01; 
 
     if (pending >= MIN_COLLECT || pending >= maxCapacityBTC) {
-        player.balance += pending;
-        player.lastCollectTime = now;
-        saveUserData();
-        gameLoop();
+        // 🟢 عرض الإعلان البيني قبل جمع الجواهر
+        showInterstitialAd(() => {
+            player.balance += pending;
+            player.lastCollectTime = now;
+            saveUserData();
+            gameLoop();
+            alert(`✅ تم جمع 💎 ${pending.toFixed(4)} بنجاح!`);
+        });
     } else {
         alert(`عذراً! الحد الأدنى للجمع هو 💎 ${MIN_COLLECT}.`);
     }
@@ -495,7 +499,7 @@ function handleWithdrawClick() {
                 <p class="text-green-400 font-bold text-lg mb-2">تهانينا! لقد أكملت جميع الشروط.</p>
                 <p class="text-gray-300 text-sm mb-4">رصيدك الحالي هو: <span class="text-yellow-400 font-bold">💎 ${player.balance.toFixed(2)}</span></p>
                 <p class="text-xs text-gray-400 mb-4">يرجى مراسلة الدعم الفني وتزويدهم بعنوان محفظتك (USDT TRC20) لتحويل الكوينز إلى دولارات وإرسالها إليك.</p>
-                <button onclick="window.open('https://t.me/${SUPPORT_USERNAME}', '_blank'  )" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg transition shadow-lg">
+                <button onclick="window.open('https://t.me/${SUPPORT_USERNAME}', '_blank' )" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg transition shadow-lg">
                     مراسلة الدعم الفني 💬
                 </button>
             </div>
@@ -588,27 +592,22 @@ function openBox(selectedIndex) {
 }
 
 /* ==========================================
-   9. نظام إعلانات Adsgram 📺
+   9. نظام إعلانات Adsgram 📺 (Interstitial)
    ========================================== */
-const ADSGRAM_BLOCK_ID = "46861"; 
+const ADSGRAM_BLOCK_ID = "int-46902"; 
 
 const AdController = window.Adsgram ? window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID }) : null;
 
-function showAdsgramAd() {
-    if (!AdController) {
-        alert("نظام الإعلانات غير متوفر حالياً، يرجى المحاولة لاحقاً ⚠️");
-        return;
+function showInterstitialAd(callback) {
+    if (AdController) {
+        AdController.show().then(() => {
+            if(callback) callback();
+        }).catch(() => {
+            if(callback) callback();
+        });
+    } else {
+        if(callback) callback();
     }
-
-    AdController.show().then((result) => {
-        const reward = 0.001; 
-        player.balance += reward;
-        saveUserData();
-        gameLoop();
-        alert(`🎉 شكراً لمشاهدة الإعلان! تمت إضافة 💎 ${reward} إلى رصيدك.`);
-    }).catch((result) => {
-        alert("⚠️ يجب عليك مشاهدة الإعلان بالكامل للحصول على المكافأة.");
-    });
 }
 
 /* ==========================================
