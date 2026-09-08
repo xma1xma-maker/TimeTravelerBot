@@ -590,7 +590,7 @@ function openBox(selectedIndex) {
 /* ==========================================
    9. نظام إعلانات Adsgram 📺
    ========================================== */
-const ADSGRAM_BLOCK_ID = "46831"; 
+const ADSGRAM_BLOCK_ID = "46861"; 
 
 const AdController = window.Adsgram ? window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID }) : null;
 
