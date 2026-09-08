@@ -4,7 +4,7 @@
 const SUPABASE_URL = 'https://tgpwdfegzdicypqfpjym.supabase.co'; 
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRncHdkZmVnemRpY3lwcWZwanltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MjMzODMsImV4cCI6MjEwNDA5OTM4M30.wFodcxwYL4KbiR09__Esi6C8du0nB5R54oIio8gdvMk'; 
 const BOT_USERNAME = 'BitPMinerbot'; 
-const SUPPORT_USERNAME = 'YOUR_SUPPORT_USERNAME'; // 🔴 ضع يوزر حساب الدعم الفني هنا (بدون @ )
+const SUPPORT_USERNAME = 'hamsterze'; // 🔴 ضع يوزر حساب الدعم الفني هنا (بدون @ )
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
