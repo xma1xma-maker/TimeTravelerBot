@@ -22,7 +22,6 @@
                     $ <span id="main-balance">0.00</span>
                 </p>
             </div>
-            <!-- 🟢 هذا هو الجزء الذي كان ينقص الكود ويسبب توقفه -->
             <div class="flex items-center gap-2 bg-gray-800 px-3 py-1.5 rounded-full border border-gray-700 shadow-lg">
                 <img id="user-avatar" src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png" class="w-7 h-7 rounded-full object-cover border border-gray-500">
                 <span id="user-name-display" class="text-sm text-white font-bold max-w-[80px] truncate">المعدن</span>
@@ -30,10 +29,14 @@
         </div>
     </header>
 
-    <!-- ================= صفحة التعدين (الرئيسية ) ================= -->
+    <!-- ================= صفحة التعدين (الرئيسية  ) ================= -->
     <div id="view-home" class="view-section active">
         
-        <nav class="grid grid-cols-4 gap-3 px-4 mb-6">
+        <!-- 🟢 تم تعديل الأزرار لتصبح 5 أزرار (تمت إضافة زر الأوائل) -->
+        <nav class="grid grid-cols-5 gap-2 px-4 mb-6">
+            <button onclick="openLeaderboardModal()" class="action-btn">
+                <span class="text-xl mb-1">🏆</span> الأوائل
+            </button>
             <button onclick="openBoxModal()" class="action-btn">
                 <span class="text-xl mb-1">🎁</span> صناديق
             </button>
@@ -90,7 +93,6 @@
             <p class="text-xs text-gray-400 mt-2">أكمل المهام لربح رصيد إضافي</p>
         </div>
         
-        <!-- 🟢 مهمة مشاهدة الإعلان الدائمة -->
         <div class="btc-card p-3 mb-4 border-2 border-blue-500/50">
             <div class="flex items-center gap-3">
                 <div class="w-12 h-12 bg-blue-900/50 rounded-xl border border-blue-500 flex items-center justify-center text-2xl">
@@ -107,7 +109,6 @@
             </div>
         </div>
 
-        <!-- المهام الديناميكية من قاعدة البيانات -->
         <div id="tasks-container" class="flex flex-col gap-3"></div>
     </div>
 
@@ -150,14 +151,23 @@
         <div class="btc-card p-6 w-full max-w-sm relative text-center">
             <button onclick="closeWithdrawModal()" class="absolute top-3 right-3 text-gray-400 hover:text-white text-xl">&times;</button>
             <h2 class="text-xl font-bold text-white mb-4">سحب الأرباح 📤</h2>
+            
             <div id="withdraw-content"></div>
+
+            <!-- 🟢 الزر الجديد الذي يطلبه Adsgram كدليل -->
+            <div class="mt-6 pt-4 border-t border-gray-700">
+                <p class="text-xs text-gray-400 mb-2">هل تريد التأكد من مصداقيتنا؟</p>
+                <a href="https://t.me/+hpqI8A3odIRmMTgy" target="_blank" class="inline-block w-full bg-gray-800 border border-gray-600 text-blue-400 font-bold py-2 rounded-lg text-sm transition hover:bg-gray-700">
+                    مشاهدة إثباتات السحب 🧾
+                </a>
+            </div>
         </div>
     </div>
 
     <!-- نافذة صناديق الحظ 🎁 -->
     <div id="box-modal" class="fixed inset-0 bg-black/90 z-[100] hidden flex items-center justify-center px-4">
         <div class="btc-card p-6 w-full max-w-sm relative text-center">
-            <button onclick="closeBoxModal()" class="absolute top-3 right-3 text-gray-400 hover:text-white text-xl">&times;</button>
+            <button onclick="closeBoxModal( )" class="absolute top-3 right-3 text-gray-400 hover:text-white text-xl">&times;</button>
             <h2 class="text-xl font-bold text-white mb-2">صناديق الحظ 🎁</h2>
             <p class="text-xs text-gray-400 mb-6">اختر صندوقاً واحداً.. قد تربح حتى 0.10$ أو لا شيء!</p>
             
@@ -169,6 +179,18 @@
             
             <div id="box-result" class="h-12 flex items-center justify-center font-bold text-lg"></div>
             <p id="box-timer" class="text-xs text-red-400 mt-4 hidden"></p>
+        </div>
+    </div>
+
+    <!-- 🟢 نافذة لوحة الصدارة 🏆 -->
+    <div id="leaderboard-modal" class="fixed inset-0 bg-black/90 z-[100] hidden flex items-center justify-center px-4">
+        <div class="btc-card p-6 w-full max-w-sm relative text-center">
+            <button onclick="closeLeaderboardModal()" class="absolute top-3 right-3 text-gray-400 hover:text-white text-xl">&times;</button>
+            <h2 class="text-xl font-bold text-white mb-6">أفضل 3 معدنين 🏆</h2>
+            
+            <div id="leaderboard-content" class="flex flex-col gap-3">
+                <p class="text-gray-400 text-sm">جاري التحميل... ⏳</p>
+            </div>
         </div>
     </div>
 
