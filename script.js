@@ -601,7 +601,7 @@ function showAdsgramAd() {
     }
 
     AdController.show().then((result) => {
-        const reward = 0.05; 
+        const reward = 0.001; 
         player.balance += reward;
         saveUserData();
         gameLoop();
