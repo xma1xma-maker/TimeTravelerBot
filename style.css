@@ -107,3 +107,14 @@ body {
     background-color: #22c55e;
     pointer-events: none;
 }
+
+/* ==========================================
+   حركات الأنيميشن (Tap to Earn)
+   ========================================== */
+@keyframes floatUp {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-60px) scale(1.5); }
+}
+.animate-float-up {
+    animation: floatUp 0.8s ease-out forwards;
+}
