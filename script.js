@@ -594,7 +594,7 @@ function openBox(selectedIndex) {
 /* ==========================================
    9. نظام إعلانات Adsgram 📺 (Interstitial)
    ========================================== */
-const ADSGRAM_BLOCK_ID = "int-46902"; 
+const ADSGRAM_BLOCK_ID = "int-46998"; 
 
 const AdController = window.Adsgram ? window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID }) : null;
 
