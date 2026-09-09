@@ -671,7 +671,7 @@ let miniGameInterval;
 function startMiniGame() {
     const now = Date.now();
     const cooldown = 60 * 60 * 1000; // ساعة واحدة (60 دقيقة)
-    
+
     // جلب آخر وقت لعب فيه المستخدم لمنع الغش
     const lastPlayed = localStorage.getItem(`last_minigame_${USER_ID}`) || 0;
     
@@ -743,6 +743,54 @@ function endMiniGame() {
     } else {
         alert("⏱️ انتهى الوقت!\nلم تقم بأي نقرة، حظاً أوفر في المرة القادمة!");
     }
+}
+
+/* ==========================================
+   12. نظام النقر الرئيسي (Tap to Earn) 👆
+   ========================================== */
+let tapSaveTimeout;
+
+document.getElementById('main-tap-coin').addEventListener('click', (e) => {
+    const reward = 0.0001; // مكافأة النقر
+    player.balance += reward;
+    
+    // تحديث الواجهة فوراً
+    document.getElementById('main-balance').innerText = player.balance.toFixed(4);
+    
+    // اهتزاز الهاتف
+    if (window.Telegram && window.Telegram.WebApp.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+    }
+
+    // إنشاء تأثير الرقم المتطاير
+    const rect = e.target.getBoundingClientRect();
+    // إذا كان النقر من الماوس نأخذ الإحداثيات، وإذا كان من الهاتف نأخذ إحداثيات الزر
+    const x = e.clientX || (rect.left + rect.width / 2);
+    const y = e.clientY || (rect.top + rect.height / 2);
+    
+    showFloatingNumber(x, y, `+${reward}`);
+
+    // حفظ البيانات في قاعدة البيانات بعد التوقف عن النقر بثانية (لتخفيف الضغط على السيرفر)
+    clearTimeout(tapSaveTimeout);
+    tapSaveTimeout = setTimeout(() => {
+        saveUserData();
+    }, 1000);
+});
+
+function showFloatingNumber(x, y, text) {
+    const floatEl = document.createElement('div');
+    floatEl.innerText = text;
+    floatEl.className = 'fixed text-blue-400 font-bold text-2xl pointer-events-none z-50 animate-float-up drop-shadow-lg';
+    
+    // تعديل بسيط لمكان الظهور ليكون دقيقاً
+    floatEl.style.left = `${x - 20}px`;
+    floatEl.style.top = `${y - 20}px`;
+    
+    document.body.appendChild(floatEl);
+    
+    setTimeout(() => {
+        floatEl.remove();
+    }, 800);
 }
 
 // 🚀 تشغيل التطبيق
