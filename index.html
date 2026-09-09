@@ -51,26 +51,37 @@
         </nav>
 
         <section class="px-4 mb-8">
-            <div class="btc-card p-5 text-center relative">
-                <h3 class="font-bold text-gray-400 text-sm">الجواهر المستحقة</h3>
-                <p class="text-4xl font-bold mt-2 mb-4 text-white">
-                    <span class="text-2xl text-blue-400">💎</span> <span id="pending-balance">0.00000000</span>
-                </p>
+            <div class="btc-card p-5 text-center relative overflow-hidden">
                 
-                <div class="mb-5 text-right">
-                    <div class="flex justify-between text-[10px] font-bold mb-1">
-                        <span id="storage-text" class="text-gray-400">سعة التخزين: 1 ساعة</span>
-                        <span id="progress-text" class="text-blue-400">0%</span>
-                    </div>
-                    <div class="progress-bg">
-                        <div id="progress-fill" class="progress-fill bg-blue-500"></div>
-                    </div>
-                    <p id="storage-warning" class="text-[10px] text-gray-500 mt-1 text-center">يستمر التجميع حتى يمتلئ الخزان</p>
+                <!-- 🟢 الجوهرة العملاقة للنقر (Tap to Earn) -->
+                <div class="flex flex-col items-center justify-center my-4 relative" id="tap-area">
+                    <p class="text-xs text-gray-400 mb-3 animate-pulse">انقر لجمع الجواهر فوراً! 👆</p>
+                    <button id="main-tap-coin" class="w-40 h-40 rounded-full bg-gradient-to-b from-blue-600 to-blue-900 shadow-[0_0_40px_rgba(37,99,235,0.5)] flex items-center justify-center text-7xl transform transition-transform active:scale-95 select-none border-4 border-blue-400/30">
+                        💎
+                    </button>
                 </div>
 
-                <button id="btn-collect" class="btn-collect w-full font-bold py-3 rounded-xl text-lg shadow-lg bg-blue-600 hover:bg-blue-500 text-white">
-                    جمع الجواهر
-                </button>
+                <div class="border-t border-gray-700 pt-4 mt-2">
+                    <h3 class="font-bold text-gray-400 text-sm">التعدين التلقائي</h3>
+                    <p class="text-2xl font-bold mt-1 mb-3 text-white">
+                        <span class="text-lg text-blue-400">💎</span> <span id="pending-balance">0.00000000</span>
+                    </p>
+                    
+                    <div class="mb-4 text-right">
+                        <div class="flex justify-between text-[10px] font-bold mb-1">
+                            <span id="storage-text" class="text-gray-400">سعة التخزين: 1 ساعة</span>
+                            <span id="progress-text" class="text-blue-400">0%</span>
+                        </div>
+                        <div class="progress-bg">
+                            <div id="progress-fill" class="progress-fill bg-blue-500"></div>
+                        </div>
+                        <p id="storage-warning" class="text-[10px] text-gray-500 mt-1 text-center">يستمر التجميع حتى يمتلئ الخزان</p>
+                    </div>
+
+                    <button id="btn-collect" class="btn-collect w-full font-bold py-3 rounded-xl text-lg shadow-lg bg-blue-600 hover:bg-blue-500 text-white">
+                        جمع التعدين
+                    </button>
+                </div>
             </div>
         </section>
 
